@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,24 +56,27 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class ParseFiles {
-		private static final String PATH = "../JPExamples/src/org/javaparser/samples";
+		private static final String PATH = "../JPExamples/src";
 	    //final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw");
 		//final File folder = new File(""../JPExamples/src/org/javaparser/samples"");
 		
-		static HashMap<Integer, Entity> EntitySet = new HashMap<Integer, Entity>();
+		static HashMap<String, Entity> EntitySet = new HashMap<String, Entity>();
 		static ArrayList<Entity> Entities = new ArrayList<Entity>();
 		static ArrayList<VariableUsage> VariableUsage = new ArrayList<VariableUsage>();
 		
-		static CombinedTypeSolver typeSolver = new CombinedTypeSolver(new ReflectionTypeSolver(), new JavaParserTypeSolver(PATH));
-    	SymbolSolver symbolSolver = new SymbolSolver(typeSolver);
-    	TypeDeclaration typeDeclaration;
 				
 	    public void parse() throws IOException {
 
 	        CompilationUnit cu = null;
-	        TypeSolver tSolver = new ReflectionTypeSolver( ) ;
-	    	JavaSymbolSolver sSolver = new JavaSymbolSolver(tSolver) ;
-	    	JavaParser.getStaticConfiguration( ).setSymbolResolver(sSolver) ;
+	        
+	        TypeSolver reflectionTypeSolver = new ReflectionTypeSolver();
+	        TypeSolver javaParserTypeSolver = new JavaParserTypeSolver(new File(PATH));
+	        reflectionTypeSolver.setParent(reflectionTypeSolver);
+	        CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+	        combinedSolver.add(reflectionTypeSolver);
+	        combinedSolver.add(javaParserTypeSolver);
+	        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
+	        JavaParser.getStaticConfiguration().setSymbolResolver(symbolSolver);
 	
 				ArrayList<File> filesInFolder = parseDirect("../JPExamples/src/org/javaparser/samples");
 			
@@ -83,6 +87,12 @@ public class ParseFiles {
 					System.out.println(filesInFolder.get(i).toString());
 					cu = JavaParser.parse(filesInFolder.get(i));
 					
+					String[] split = (filesInFolder.get(i).toString()).split("\\\\");
+					String root="";
+					for(int k=0; k<split.length-1; k++){
+						root+=(split[k]+".");
+					}
+					
 					YamlPrinter printer = new YamlPrinter(true);
 					//System.out.println(printer.output(cu));
 					
@@ -92,20 +102,32 @@ public class ParseFiles {
 						processNode(node);					
 					}
 					
-					int Ecount=1;
-					for (int e=0; e<Entities.size(); e++) {
-					   EntitySet.put(Ecount, Entities.get(e));
-					   Ecount++;
-					}
 					
+					/*for (TypeDeclaration<?> typeDeclaration : ty) {
+						Node node = (Node) typeDeclaration;
+						getCalls(node);
+					}
+					*/
+
+					String key;
+					for (int e=0; e<Entities.size(); e++) {
+						key = root+Entities.get(e).getName();
+					   EntitySet.put(key, Entities.get(e));
+					}
+									
+					//System.out.println("------------------------------");
+				}
+				
+				for (int i = 0; i < filesInFolder.size(); i++){
+					cu = JavaParser.parse(filesInFolder.get(i));
+					NodeList<TypeDeclaration<?>> ty = cu.getTypes();
 					for (TypeDeclaration<?> typeDeclaration : ty) {
 						Node node = (Node) typeDeclaration;
 						getCalls(node);
 					}
-
-									
-					//System.out.println("------------------------------");
 				}
+				
+				
 				//printTest();
 	    }
 	    
@@ -197,7 +219,7 @@ public class ParseFiles {
 
 	    	else if(node instanceof ConstructorDeclaration)
 			   {
-				   e = getConstructor(node);
+				   e = getConstructor(node, ParentName);
 			   }
 	    	
 	    	
@@ -205,47 +227,16 @@ public class ParseFiles {
 	    }
 	    
 	    
-	    private static Entity getConstructor(Node child) {
+	    private static Entity getConstructor(Node child, String ParentName) {
 			Entity e = new Entity();
 			
-			e.setName(((ConstructorDeclaration) child).getNameAsString());
+			e.setName(ParentName+"."+((ConstructorDeclaration) child).getNameAsString());
 			e.setType(4);
 			Entities.add(e);
 			return e;
 		}
 	    
-	    private static void getVariableUsage(Node child, Optional<Node> parent) {
-			VariableUsage v = new VariableUsage();
-			Node p = parent.get();
-			Iterator it = EntitySet.entrySet().iterator();
-			boolean one = false,two = false,three = false;
-        	while(it.hasNext())
-        	{
-        		HashMap.Entry val = (HashMap.Entry)it.next();
-        		
-        		if((child.toString()).substring(0, (child.toString()).indexOf('.')).equals(((Entity) val.getValue()).getName()))
-	        	{
-        			Entity e = (Entity) val.getValue();
-        			v.setCallee(e);
-        			one = true;
-        		}
-        		if(((NodeWithSimpleName<ClassOrInterfaceDeclaration>) p).getNameAsString().equals(((Entity) val.getValue()).getName()))
-	        	{
-        			Entity e = (Entity) val.getValue();
-        			v.setCaller(e);      	
-        			two = true;
-        		}
-        		if(((FieldAccessExpr) child).getNameAsString().equals(((Entity) val.getValue()).getName()))
-        		{
-        			Entity e = (Entity) val.getValue();
-        			v.setVariable(e); 
-        			three = true;
-        		}
-        	}
-        	if(one && two && three){
-			VariableUsage.add(v);
-        	}
-		}
+	    
 	    	
 	    	static Set<Entity> findVarChild(Node node, Entity e, Set<Entity> children){
 	    		
@@ -266,21 +257,6 @@ public class ParseFiles {
 	    			   
 	    		}
 	    		return children;
-	    	}
-	    	
-	    	static void findVarUsage(Node node, Optional<Node> optional){
-	    		
-	    		Optional<Node> Parent = optional;
-	    		for (Node child : node.getChildNodes()){
-	    			if(child instanceof FieldAccessExpr)
-	    			    	{
-	    			    		getVariableUsage(child, Parent);
-	    			    	}
-	    			   else{
-	    				   findVarUsage(child, Parent);
-	    			   }
-	    			   
-	    		}
 	    	}
 	    
 	    static Entity getMethodChild(Node node){
@@ -305,14 +281,23 @@ public class ParseFiles {
 	    
 	    public static void printTest()
 	    {
-	    	for(int i=0; i<Entities.size(); i++)
+	    	Iterator it = EntitySet.entrySet().iterator();
+	        while (it.hasNext()) {
+	            Map.Entry pair = (Map.Entry)it.next();
+	            //System.out.println(pair.getKey() + " = " + ((Entity)pair.getValue()).getName());
+	            ((Entity)pair.getValue()).print();
+	        }
+	    	
+	    	/*for(int i=0; i<EntitySet.size(); i++)
 	    	{
-	    		Entities.get(i).print();
+	    		EntitySet.get(i).print();
 	    	}
+	    	*/
 	    	for(int i=0; i<VariableUsage.size(); i++)
 	    	{
 	    		VariableUsage.get(i).print();
 	    	}
+	    	
 	    }
 	    
 	    
@@ -323,10 +308,9 @@ public class ParseFiles {
 	     *pair = Hashmap Entries*/
 	    public static void getCalls(Node node)
 	    {
-	    	Set<Entity> out = new HashSet<Entity>();
-	    	Set<Entity> in = new HashSet<Entity>();
+
 	    	for (Node child : node.getChildNodes()){
-  			  
+	    		
 	    	  //Find all Methods and use visitor to go through
  			  if(child instanceof MethodDeclaration){
  				 MethodDeclaration m = (MethodDeclaration)child;
@@ -334,29 +318,51 @@ public class ParseFiles {
 
 					@Override
 	    	        public void visit(final MethodCallExpr n, final Void arg){
-	    	        
+						
 					//visiting all Method calls see if its a call to a user defined method
-	    	        if(!(n.getParentNodeForChildren().toString().contains("."))){
-	    	        	
-	    	        	Entity f = EntitySet.get(0);
-	    	        	Entity s = EntitySet.get(0);
+	    	        	Entity f = new Entity();
+	    	        	Entity s = new Entity();
 	    	        	boolean first = false, second = false;
 	    	        	Iterator it = EntitySet.entrySet().iterator();
+	    	        	
 	    	        	
 	    	        	//Using the set of all found entities, run through see if they match the method calling or caller
 	    	        	while(it.hasNext())
 	    	        	{
+	    	        		//First get the name of each entity we have stored
 	    	        		HashMap.Entry val = (HashMap.Entry)it.next();
+	    	        		String entName;
+	    	        		if(((Entity) val.getValue()).getName().contains(".")){
+	    	        			entName = ((Entity) val.getValue()).getName().substring(((Entity) val.getValue()).getName().lastIndexOf(".")+1);
+	    	        		}
+	    	        		else
+	    	        			entName = ((Entity) val.getValue()).getName();
 	    	        		
-	    	        		if(m.getNameAsString().equals(((Entity) val.getValue()).getName()))
+	    	        		//Next see if the entity is 1) a method, 2)has the same name and 3)is being called in the same class as the method in question
+	    	        		if(((Entity) val.getValue()).getType() == 3
+	    	        			&&
+	    	        			m.getNameAsString().equals(entName)
+	    	        				&&
+	    	        				((Entity) val.getValue()).getParent().getName().equals(m.resolve().getClassName()))
 	     	        		{
-	    	        			first = true;
+	    	    	        	first = true;
 	    	        			f = (Entity) val.getValue();
 	    	        		}
-	    	        		else if(((NodeWithSimpleName<ClassOrInterfaceDeclaration>) n.getParentNodeForChildren()).getNameAsString().equals(((Entity) val.getValue()).getName()))
+	    	        		
+	    	        		//See if the entity is 1) has the same name as the method call and 2) is from the same class as where the method being called is instantiated
+	    	        		else if(((Entity) val.getValue()).getType() == 3
+	    	        				&&
+	    	        				((NodeWithSimpleName<ClassOrInterfaceDeclaration>) n.getParentNodeForChildren()).getNameAsString().equals(entName)
+	    	        				)
 	     	        		{
-	    	        			second = true;
-	    	        			s = (Entity) val.getValue();
+	    	        			if(n.resolve().hasName())
+	    	        			{
+	    	        				if(((Entity) val.getValue()).getParent().getName().equals(n.resolve().getClassName()))
+	    	        				{
+	    	        					second = true;
+	    	        					s = (Entity) val.getValue();
+	    	        				}
+	    	        			}
 	     	        		}
 	    	        	}
 	    	        		        	
@@ -364,34 +370,32 @@ public class ParseFiles {
 	    	        	{
 	    	        		f.addOutgoing(s);
 	    	        		s.addIncoming(f);
-	    	        	
-	    	        	
+	    	        			    	        	
 	    	        	//Find the 2 entities again and update them with the incoming and outgoings
-	    	        	Iterator it2 = EntitySet.entrySet().iterator();
 	    	        	first = false;
-	    	        	second = false;
-		 	        	while(it2.hasNext())
-		 	        	{
-		 	        		HashMap.Entry pair = (HashMap.Entry)it2.next();
-		 	        		if(f.getName().equals(((Entity) pair.getValue()).getName()))
+	    	        	second = false;	
+	    	        	String fKey="";
+	    	        	String sKey="";
+	    	        	for(HashMap.Entry<String, Entity> entry : EntitySet.entrySet())
+	    	        	{
+	    	        		if(f.getName().equals(((Entity) entry.getValue()).getName()))
 		 	        		{
 		 	        			first = true;
-		 	        			int tempInt = (int) pair.getKey();
 		 	        			f.setHasOutgoing(true);
-		 	        			EntitySet.put(tempInt, f);
+		 	        			fKey = entry.getKey();
 		 	           		}
-		 	        		if(s.getName().equals(((Entity) pair.getValue()).getName()))
+		 	        		if(s.getName().equals(((Entity) entry.getValue()).getName()))
 		 	        		{
 		 	        			second = true;
-		 	        			int tempInt = (int) pair.getKey();
 		 	        			s.setHasIncoming(true);
-		 	        			EntitySet.put(tempInt, s);
+		 	        			sKey = entry.getKey();
 		 	        		}
-		 	        			
-		 	          	}
+	    	        	}
+	    	        	EntitySet.put(fKey, f);
+		 	        	EntitySet.put(sKey, s);
 	    	        	}
 	    	        	
-	    	        }
+	    	        
 	    	         super.visit(n, arg);
 	    	            
 	    	        }
@@ -401,6 +405,55 @@ public class ParseFiles {
  			  }
  			}
 	    }
+	    
+	    static void findVarUsage(Node node, Optional<Node> optional){
+    		
+    		Optional<Node> Parent = optional;
+    		for (Node child : node.getChildNodes()){
+    			if(child instanceof FieldAccessExpr)
+    			    	{
+    			    		getVariableUsage(child, Parent);
+    			    	}
+    			   else{
+    				   findVarUsage(child, Parent);
+    			   }
+    			   
+    		}
+    	}
+	    
+	    private static void getVariableUsage(Node child, Optional<Node> parent) {
+			VariableUsage v = new VariableUsage();
+			Node p = parent.get();
+			Iterator it = EntitySet.entrySet().iterator();
+			boolean one = false,two = false,three = false;
+        	while(it.hasNext())
+        	{
+        		HashMap.Entry val = (HashMap.Entry)it.next();
+        		
+        		if((child.toString()).substring(0, (child.toString()).indexOf('.')).equals(((Entity) val.getValue()).getName()))
+	        	{
+        			Entity e = (Entity) val.getValue();
+        			v.setCallee(e);
+        			one = true;
+        		}
+        		if(((NodeWithSimpleName<ClassOrInterfaceDeclaration>) p).getNameAsString().equals(((Entity) val.getValue()).getName()))
+	        	{
+        			Entity e = (Entity) val.getValue();
+        			v.setCaller(e);      	
+        			two = true;
+        		}
+        		if(child.toString().equals(((Entity) val.getValue()).getName()))
+        		{
+        			Entity e = (Entity) val.getValue();
+        			v.setVariable(e); 
+        			three = true;
+        		}
+        	}
+        	if(one && two && three){
+			VariableUsage.add(v);
+        	}
+		}
+	    
 }
 
 
