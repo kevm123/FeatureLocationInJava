@@ -40,6 +40,7 @@ import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.printer.YamlPrinter;
 import com.github.javaparser.resolution.MethodUsage;
+import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
@@ -56,7 +57,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class ParseFiles {
-		private static final String PATH = "../JPExamples/src";
+		private static final String PATH = "C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw/JHotDraw7/src/main/java";
 	    //final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw");
 		//final File folder = new File(""../JPExamples/src/org/javaparser/samples"");
 		
@@ -78,13 +79,14 @@ public class ParseFiles {
 	        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
 	        JavaParser.getStaticConfiguration().setSymbolResolver(symbolSolver);
 	
-				ArrayList<File> filesInFolder = parseDirect("../JPExamples/src/org/javaparser/samples");
+				ArrayList<File> filesInFolder = parseDirect("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw");
 			
+				System.out.println(filesInFolder.size());
 				for (int i = 0; i < filesInFolder.size(); i++) {
 					
 					//System.out.println("------------------------------");
 					
-					System.out.println(filesInFolder.get(i).toString());
+					//System.out.println(filesInFolder.get(i).toString());
 					cu = JavaParser.parse(filesInFolder.get(i));
 					
 					String[] split = (filesInFolder.get(i).toString()).split("\\\\");
@@ -120,13 +122,13 @@ public class ParseFiles {
 				
 				for (int i = 0; i < filesInFolder.size(); i++){
 					cu = JavaParser.parse(filesInFolder.get(i));
+					System.out.println((i+1)+" : "+filesInFolder.get(i).toString());
 					NodeList<TypeDeclaration<?>> ty = cu.getTypes();
 					for (TypeDeclaration<?> typeDeclaration : ty) {
 						Node node = (Node) typeDeclaration;
 						getCalls(node);
 					}
 				}
-				
 				
 				//printTest();
 	    }
@@ -327,7 +329,7 @@ public class ParseFiles {
 	    	        	
 	    	        	
 	    	        	//Using the set of all found entities, run through see if they match the method calling or caller
-	    	        	while(it.hasNext())
+	    	        	while(it.hasNext() && !first && !second)
 	    	        	{
 	    	        		//First get the name of each entity we have stored
 	    	        		HashMap.Entry val = (HashMap.Entry)it.next();
@@ -355,6 +357,7 @@ public class ParseFiles {
 	    	        				((NodeWithSimpleName<ClassOrInterfaceDeclaration>) n.getParentNodeForChildren()).getNameAsString().equals(entName)
 	    	        				)
 	     	        		{
+	    	        			try{
 	    	        			if(n.resolve().hasName())
 	    	        			{
 	    	        				if(((Entity) val.getValue()).getParent().getName().equals(n.resolve().getClassName()))
@@ -362,6 +365,10 @@ public class ParseFiles {
 	    	        					second = true;
 	    	        					s = (Entity) val.getValue();
 	    	        				}
+	    	        			}
+	    	        			}
+	    	        			catch(Exception e){
+	    	        				System.out.println(((NodeWithSimpleName<ClassOrInterfaceDeclaration>) n.getParentNodeForChildren()).getNameAsString()); 
 	    	        			}
 	     	        		}
 	    	        	}
@@ -391,8 +398,10 @@ public class ParseFiles {
 		 	        			sKey = entry.getKey();
 		 	        		}
 	    	        	}
+	    	        	if(first && second){
 	    	        	EntitySet.put(fKey, f);
 		 	        	EntitySet.put(sKey, s);
+	    	        	}
 	    	        	}
 	    	        	
 	    	        

@@ -1,6 +1,9 @@
 package featureLocation;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.tartarus.snowball.ext.porterStemmer;
 
 public class FeatureLocation {
@@ -9,8 +12,17 @@ public class FeatureLocation {
 
 	public static void main(String[]args) throws IOException{
 		parser.parse();
-		String input = "gets*Salaries-FeedPlasteredConflatedTroubledSizedHoppingFallingFizzedHissingFailingTanning";
-		String[] list = input.split("(?=[A-Z])");
+		String input = "getFormativeHopefulGoodnessHappinessRevivalDefensibleFastingFizzingSkyAlienateDigitizerOperatorSensibleGrandful";
+		
+		Iterator it = parser.EntitySet.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            input = ((Entity)pair.getValue()).getName();
+            System.out.println("\n\n-----"+input+"------\n");
+            
+            //(?=[A-Z])
+            
+		String[] list = input.split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|[.]");
 		Stemmer stemmer = new Stemmer();
 		//porterStemmer stemmer = new porterStemmer();
 		for(int i=0; i<list.length; i++)
@@ -29,6 +41,7 @@ public class FeatureLocation {
 				list[i]=stemmer.getCurrent();
 			}
 			*/
+		}
 		}
 		
 		/*for(int i=0; i<parser.Entities.size(); i++){
