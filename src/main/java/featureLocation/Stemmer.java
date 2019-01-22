@@ -177,19 +177,19 @@ public class Stemmer {
 	}
 
 	private void removeEnding() {
-		if (end("y"))
+		if (end("y") && output.length()>2)
 			output = output.substring(0, wLength - 1);
-		else if (end("a"))
+		else if (end("a") && output.length()>2)
 			output = output.substring(0, wLength - 1);
-		else if (end("er"))
+		else if (end("er") && output.length()>2)
 			output = output.substring(0, wLength - 2);
-		else if (end("e"))
+		else if (end("e") && output.length()>2)
 			output = output.substring(0, wLength - 1);
-		else if (end("i"))
+		else if (end("i") && output.length()>2)
 			output = output.substring(0, wLength - 1);
-		else if (end("o"))
+		else if (end("o") && output.length()>2)
 			output = output.substring(0, wLength - 1);
-		else if (end("u"))
+		else if (end("u") && output.length()>2)
 			output = output.substring(0, wLength - 1);
 	}
 

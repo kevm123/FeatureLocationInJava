@@ -56,7 +56,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class ParseFiles {
-	private static final String PATH = "../JPExamples/src";
+	private static final String PATH = "C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw";
     //final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw/JHotDraw7/src/main/java");
 	//final File folder = new File(""../JPExamples/src/org/javaparser/samples"");
 	
@@ -78,10 +78,9 @@ public class ParseFiles {
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         JavaParser.getStaticConfiguration().setSymbolResolver(symbolSolver);
 
-			ArrayList<File> filesInFolder = parseDirect("../JPExamples/src/org/javaparser/samples");
+			ArrayList<File> filesInFolder = parseDirect("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw/JHotDraw7/src/main/java");
 		
-			System.out.println(filesInFolder.size());
-			for (int i = 0; i < filesInFolder.size(); i++) {
+			for (int i = 0; i < 20; i++) {
 				
 				//System.out.println("------------------------------");
 				
@@ -119,9 +118,9 @@ public class ParseFiles {
 				//System.out.println("------------------------------");
 			}
 			
-			for (int i = 0; i < filesInFolder.size(); i++){
+			for (int i = 0; i < 20; i++){
 				cu = JavaParser.parse(filesInFolder.get(i));
-				System.out.println((i+1)+" : "+filesInFolder.get(i).toString());
+				//System.out.println((i+1)+" : "+filesInFolder.get(i).toString());
 				NodeList<TypeDeclaration<?>> ty = cu.getTypes();
 				for (TypeDeclaration<?> typeDeclaration : ty) {
 					Node node = (Node) typeDeclaration;
@@ -129,7 +128,7 @@ public class ParseFiles {
 				}
 			}
 			
-			printTest();
+			//printTest();
     }
     
     public static ArrayList<File> parseDirect(String in) throws IOException
@@ -367,7 +366,7 @@ public class ParseFiles {
     	        			}
     	        			}
     	        			catch(Exception e){
-    	        				System.out.println(((NodeWithSimpleName<ClassOrInterfaceDeclaration>) n.getParentNodeForChildren()).getNameAsString()); 
+    	        				//System.out.println(((NodeWithSimpleName<ClassOrInterfaceDeclaration>) n.getParentNodeForChildren()).getNameAsString()+"...."); 
     	        			}
      	        		}
     	        	}
