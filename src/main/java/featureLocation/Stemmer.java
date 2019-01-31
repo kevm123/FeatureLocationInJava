@@ -82,6 +82,8 @@ public class Stemmer {
 		else if (word.charAt(wLength - 2) == 'c') {
 			if (end("ency"))
 				output = word.substring(0, wLength - 2);
+			else if (end("ect"))
+				output = word.substring(0, wLength - 3);
 			else if (end("ancy"))
 				output = word.substring(0, wLength - 2); // hesitancy ->
 															// hesitan(t)

@@ -56,8 +56,8 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class ParseFiles {
-	private static final String PATH = "C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw";
-    //final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw/JHotDraw7/src/main/java");
+	private static final String PATH = "../JPExamples";
+    //final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw ! /JHotDraw7/src/main/java");
 	//final File folder = new File(""../JPExamples/src/org/javaparser/samples"");
 	
 	static HashMap<String, Entity> EntitySet = new HashMap<String, Entity>();
@@ -78,9 +78,9 @@ public class ParseFiles {
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         JavaParser.getStaticConfiguration().setSymbolResolver(symbolSolver);
 
-			ArrayList<File> filesInFolder = parseDirect("C:/Users/kev00_000/Desktop/College/4th Year Semester 1/FYP/workspace-jhotdraw/JHotDraw7/src/main/java");
+			ArrayList<File> filesInFolder = parseDirect("../JPExamples");
 		
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < filesInFolder.size(); i++) {
 				
 				//System.out.println("------------------------------");
 				
@@ -118,7 +118,7 @@ public class ParseFiles {
 				//System.out.println("------------------------------");
 			}
 			
-			for (int i = 0; i < 20; i++){
+			for (int i = 0; i < filesInFolder.size(); i++){
 				cu = JavaParser.parse(filesInFolder.get(i));
 				//System.out.println((i+1)+" : "+filesInFolder.get(i).toString());
 				NodeList<TypeDeclaration<?>> ty = cu.getTypes();
