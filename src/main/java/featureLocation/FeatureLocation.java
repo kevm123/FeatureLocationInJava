@@ -25,8 +25,7 @@ public class FeatureLocation {
 	                WebLookAndFeel.install ();
 	            }
 	        } );
-		parser.parse();
-		bagOfWords.create();
+		
 		setUpSearch();
 		
 	}
@@ -34,6 +33,14 @@ public class FeatureLocation {
 	public static void setUpSearch(){
 		SearchScreen ss = new SearchScreen(sm);
 		ss.setVisible(true);
+		
+		try {
+			bagOfWords.create();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public static void searchWord(){
