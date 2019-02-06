@@ -37,8 +37,9 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private JList<String> list;
 	private JScrollPane card1;
 	private JPanel panel = new JPanel();
-	private JPanel card2;
+	private JPanel card2 = new JPanel();;
 	private CardLayout cardLayout;
+	private String[] values;
 
 	public ResultScreen(ArrayList in){
 
@@ -73,7 +74,7 @@ public class ResultScreen extends JFrame implements ActionListener {
         card1.setViewportView(internal);
 
         panel.add(card1, "Card1");
-        //panel.setPreferredSize(new Dimension(400, 200));
+        panel.setPreferredSize(new Dimension(600,400));
        
         this.getContentPane().add(panel);
         pack();
@@ -83,7 +84,8 @@ public class ResultScreen extends JFrame implements ActionListener {
 	
 	private void showcard2(int index){
 		Entity e = Entities.get(index);
-		String[] values = e.print2();
+		card2.removeAll();
+		values = e.print2();
 		JLabel name = new JLabel(values[0]);
 		JLabel type = new JLabel(values[1]);
 		JLabel parent = new JLabel(values[2]);
@@ -92,7 +94,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 		JLabel outgoing = new JLabel(values[5]);
 		
 		
-		card2 = new JPanel();
+		
 		card2.add(name);
 		card2.add(type);
 		card2.add(parent);
@@ -101,7 +103,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 		card2.add(outgoing);
 		card2.add(returnBtn);
 		card2.setLayout(new GridLayout(7,1));
-        //panel.setPreferredSize(new Dimension(400, 200));
+        panel.setPreferredSize(new Dimension(600,400));
 		
 		panel.add(card2, "Card2");
 		
@@ -118,9 +120,6 @@ public class ResultScreen extends JFrame implements ActionListener {
 		if (e.getActionCommand().equals("Select"))
         {
             int index = list.getSelectedIndex();
-            System.out.println("Index Selected: " + index);
-            String s = (String) list.getSelectedValue();
-            System.out.println("Value Selected: " + s);
             card1.setVisible(false);
             showcard2(index);
         }        
@@ -131,7 +130,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 				card2.setVisible(false);
 				showcard1();
 			}
-			else{
+			else if(card1.isVisible()){
 				FeatureLocation.setUpSearch();
 				dispose();
 			}

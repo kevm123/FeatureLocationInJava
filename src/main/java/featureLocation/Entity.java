@@ -90,7 +90,9 @@ public class Entity {
 
 	public ArrayList<String> getAllNames() {
 		ArrayList<String> names = new ArrayList<String>();
-		names.add(parent.getName());
+		if (type != 0 && type != 6){
+			names.add(parent.getName());
+		}
 		Iterator it;
 		if (children != null) {
 			it = children.iterator();

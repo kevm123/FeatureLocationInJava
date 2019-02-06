@@ -70,6 +70,7 @@ public class BagOfWords {
 	public void search(String userSearch, ResultModel rmIn){
 
 		rm = rmIn;
+		rm.clearEntities();
 		String stemmed;
 		String[] list = regexSplit(userSearch);
 		for (int i = 0; i < list.length; i++) {
