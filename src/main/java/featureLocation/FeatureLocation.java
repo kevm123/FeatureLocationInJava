@@ -43,4 +43,5 @@ public class FeatureLocation {
 		rs.setVisible(true);
 		
 	}
+
 }

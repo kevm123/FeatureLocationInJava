@@ -153,39 +153,61 @@ public class Entity {
 
 	public String[] print2() {
 		String out[] = new String[6];
-		out[0] = ("Name:\t" + name);
-		out[1] = ("\nType:\t" + type);
+		out[0] = (name);
+		
+		switch (type) {
+        case 0:  out[1] = "Class";
+                 break;
+        case 1:  out[1] = "Global Variable";
+        		break;
+        case 2:  out[1] = "Class Variable";
+        		break;
+        case 3:  out[1] = "Method";
+        		break;
+        case 4:  out[1] = "Constant";
+        		break;
+        case 5:  out[1] = "Variable";
+        		break;
+        default: out[1] = "N\\A";
+        		break;
+		}
+		
 		if (type != 0 && type != 6)
-			out[2] = ("\nParent:\t" + parent.getName());
+			out[2] = (parent.getName());
 		if (type == 0 || type == 3) {
 
 			Iterator<Entity> it = children.iterator();
 			String test;
-			test = ("\nChildren:");
+			test = ("");
 			while (it.hasNext()) {
-				test += ("\n\t" + it.next().getName() + " | ");
+				test += (it.next().getName() + "/");
 			}
 			out[3] = test;
 			test = new String();
-			test = ("\nOutgoing:");
+			test = ("");
 			if (type == 3 && hasOutgoing) {
 				Iterator<Entity> it2 = outgoing.iterator();
 
 				while (it2.hasNext()) {
-					test += ("\n\t" + it2.next().getName() + " | ");
+					test += (it2.next().getName() + "/");
 				}
 			}
 			out[4] = test;
 			test = new String();
-			test = ("\nIncoming:");
+			test = ("");
 			if (type == 3 && hasIncoming) {
 				Iterator<Entity> it2 = incoming.iterator();
 
 				while (it2.hasNext()) {
-					test += ("\n\t" + it2.next().getName() + " | ");
+					test += (it2.next().getName() + "/");
 				}
 			}
 			out[5] = test;
+		}
+		else{
+			out[3] = "N\\A";
+			out[4] = "N\\A";
+			out[5] = "N\\A";
 		}
 
 		return out;

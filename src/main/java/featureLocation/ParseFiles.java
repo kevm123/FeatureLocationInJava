@@ -56,7 +56,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class ParseFiles {
-	private static final String PATH = "../JPExamples/src/org/javaparser/samples";
+	private static final String PATH = "../JPExamples/src";
 	// final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year
 	// Semester 1/FYP/workspace-jhotdraw ! /JHotDraw7/src/main/java");
 	// final File folder = new
@@ -297,22 +297,30 @@ public class ParseFiles {
 
 						Entity f = new Entity();
 						Entity s = new Entity();
-						boolean first = false, second = false;
+						//boolean first = false, second = false;
 						
 						try{
-						
-						System.out.println("\t\t" + root + (m.resolve()).getClassName() + "."
-									+ (m.resolve()).getName() + "--" + n.resolve().getQualifiedName());
-
-						if (EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName()) != null) {
-							f = EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName());
-							first = true;
-						}
-
 						String root2 = PATH.replace("/", ".");
 						if (EntitySet.get(root2 + "." + n.resolve().getQualifiedName()) != null) {
-							s = EntitySet.get(root2 + "." + n.resolve().getQualifiedName());
-							second = true;
+							if (EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName()) != null) {
+								
+								System.out.println("\t\t" + root + (m.resolve()).getClassName() + "."
+										+ (m.resolve()).getName() + "--" + n.resolve().getQualifiedName());
+								
+								f = EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName());
+								//first = true;
+								s = EntitySet.get(root2 + "." + n.resolve().getQualifiedName());
+								//second = true;
+								
+								
+								f.addOutgoing(s);
+								s.addIncoming(f);
+								
+								f.setHasOutgoing(true);
+								s.setHasIncoming(true);
+								EntitySet.put((root + f.getName()), f);
+								EntitySet.put((root + s.getName()), s);
+							}
 						}
 						}catch(Exception e){
 							System.out.println("CATCH");
@@ -384,10 +392,11 @@ public class ParseFiles {
 						 * "...."); } } }
 						 * 
 						 */
+						
+						/*
 
 						if (first && second) {
-							f.addOutgoing(s);
-							s.addIncoming(f);
+							
 
 							// Find the 2 entities again and update them with
 							// the incoming and outgoings
@@ -396,25 +405,21 @@ public class ParseFiles {
 							String fKey = "";
 							String sKey = "";
 
-							/*
-							 * for(HashMap.Entry<String, Entity> entry :
-							 * EntitySet.entrySet()) {
-							 * if(f.getName().equals(((Entity)
-							 * entry.getValue()).getName())) { first = true;
-							 * f.setHasOutgoing(true); fKey = entry.getKey(); }
-							 * if(s.getName().equals(((Entity)
-							 * entry.getValue()).getName())) { second = true;
-							 * s.setHasIncoming(true); sKey = entry.getKey(); }
-							 * }
-							 * 
-							 */
-
-							f.setHasOutgoing(true);
-							s.setHasIncoming(true);
-							EntitySet.put((root + f.getName()), f);
-							EntitySet.put((root + s.getName()), s);
-
+							
+							 for(HashMap.Entry<String, Entity> entry :
+							 EntitySet.entrySet()) {
+							 if(f.getName().equals(((Entity)
+							 entry.getValue()).getName())) { first = true;
+							 f.setHasOutgoing(true); fKey = entry.getKey(); }
+							 if(s.getName().equals(((Entity)
+							 entry.getValue()).getName())) { second = true;
+							 s.setHasIncoming(true); sKey = entry.getKey(); }
+							 }
+							 
+						
 						}
+						
+						*/
 
 						super.visit(n, arg);
 
@@ -442,7 +447,7 @@ public class ParseFiles {
 	private static void getVariableUsage(Node child, Optional<Node> parent) {
 		VariableUsage v = new VariableUsage();
 		Node p = parent.get();
-		boolean one = false, two = false, three = false;
+		//boolean one = false, two = false, three = false;
 		
 		String callee = root+(child.toString()).substring(0, (child.toString()).indexOf('.'));
 		String caller = root+((NodeWithSimpleName<ClassOrInterfaceDeclaration>) p).getNameAsString();
@@ -450,22 +455,28 @@ public class ParseFiles {
 		
 		
 		if (EntitySet.get(callee) != null) {
-			Entity e = EntitySet.get(callee);
-			v.setCallee(e);
-			one = true;
+			if (EntitySet.get(caller) != null) {
+				if (EntitySet.get(variable) != null) {
+
+					Entity a = EntitySet.get(callee);
+					v.setCallee(a);
+					
+					
+					Entity b = EntitySet.get(caller);
+					v.setCaller(b);
+
+					
+					Entity c = EntitySet.get(variable);
+					v.setVariable(c);
+
+					
+					VariableUsage.add(v);
+					System.out.println("Variable Usage!");
+				}
+				
+			}
 		}
 		
-		if (EntitySet.get(caller) != null) {
-			Entity e = EntitySet.get(caller);
-			v.setCaller(e);
-			two = true;
-		}
-		
-		if (EntitySet.get(variable) != null) {
-			Entity e = EntitySet.get(variable);
-			v.setVariable(e);
-			three = true;
-		}
 		/*
 		Iterator it = EntitySet.entrySet().iterator();
 		while (it.hasNext()) {
@@ -491,12 +502,7 @@ public class ParseFiles {
 		}
 		
 		*/
-		if (one && two && three) {
-			VariableUsage.add(v);
 
-			
-			System.out.println("Variable Usage!");
-		}
 	}
 
 }
