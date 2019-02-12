@@ -15,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -48,7 +50,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private String[] values;
 	private JLabel xLabel = new JLabel("X");
 	private GridBagConstraints constraints = new GridBagConstraints();
-
+	
 	public ResultScreen(ArrayList in){
 
 
@@ -76,12 +78,15 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private void showcard1(){
 		JScrollPane listScrollPane = new JScrollPane();
 		listScrollPane.setViewportView(list);
+		listScrollPane.setPreferredSize(new Dimension(200,247));
+		JPanel rightPanel = new JPanel();
 		
 		JPanel internal = new JPanel();
 		internal.add(listScrollPane);
 		internal.add(selectBtn);
 		internal.add(returnBtn);
-		internal.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 2));
+		internal.setLayout(new FlowLayout(FlowLayout.LEFT));
+		internal.setPreferredSize(new Dimension(350,250));
 		
 
         card1 = new JScrollPane();
@@ -104,6 +109,7 @@ public class ResultScreen extends JFrame implements ActionListener {
         pack();
          setLocationRelativeTo(null);
         card1.setVisible(true);
+        card2.setVisible(false);
         xLabel.addMouseListener(new MouseAdapter(){
         	public void mouseClicked(MouseEvent e){
         		System.exit(0);
@@ -175,6 +181,17 @@ public class ResultScreen extends JFrame implements ActionListener {
        
         pack();
 		 setLocationRelativeTo(null);
+		 
+		 
+		 Iterator it = ParseFiles.EntitySet.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry pair = (Map.Entry) it.next();
+				if(((Entity)(pair.getValue())).getName().equals(e.getName())){
+					System.out.println(pair.getKey());
+				}
+
+			}
+		 
         card2.setVisible(true);
 	}
 

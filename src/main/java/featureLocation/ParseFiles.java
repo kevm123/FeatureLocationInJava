@@ -56,7 +56,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class ParseFiles {
-	private static final String PATH = "../JPExamples/src";
+	private static String PATH ;
 	// final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year
 	// Semester 1/FYP/workspace-jhotdraw ! /JHotDraw7/src/main/java");
 	// final File folder = new
@@ -68,9 +68,10 @@ public class ParseFiles {
 	static ArrayList<VariableUsage> VariableUsage = new ArrayList<VariableUsage>();
 	private static String root = "";
 
-	public void parse() throws IOException {
+	public void parse(String in) throws IOException {
 
 		CompilationUnit cu = null;
+		PATH = in;
 
 		CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
 		combinedTypeSolver.add(new ReflectionTypeSolver(false));
@@ -89,6 +90,7 @@ public class ParseFiles {
 			cu = JavaParser.parse(filesInFolder.get(i));
 
 			String[] split = (filesInFolder.get(i).toString()).split("\\\\");
+			Entities.clear();
 
 			root = "";
 			for (int k = 0; k < split.length - 1; k++) {
@@ -120,13 +122,22 @@ public class ParseFiles {
 
 		for (int i = 0; i < filesInFolder.size(); i++) {
 			System.out.println(i + "/" + filesInFolder.size());
+			
+			String[] split = (filesInFolder.get(i).toString()).split("\\\\");
+			root = "";
+			for (int k = 0; k < split.length - 1; k++) {
+				root += (split[k] + ".");
+			}
+			
 			cu = JavaParser.parse(filesInFolder.get(i));
 			NodeList<TypeDeclaration<?>> ty = cu.getTypes();
 			for (TypeDeclaration<?> typeDeclaration : ty) {
 				Node node = (Node) typeDeclaration;
 				getCalls(node);
 			}
+			
 		}
+		
 
 		//printTest();
 	}
@@ -300,12 +311,15 @@ public class ParseFiles {
 						//boolean first = false, second = false;
 						
 						try{
-						String root2 = PATH.replace("/", ".");
+						String root2 = PATH.replace("\\", ".");
+						
 						if (EntitySet.get(root2 + "." + n.resolve().getQualifiedName()) != null) {
 							if (EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName()) != null) {
-								
+							
+								/*
 								System.out.println("\t\t" + root + (m.resolve()).getClassName() + "."
 										+ (m.resolve()).getName() + "--" + n.resolve().getQualifiedName());
+										*/
 								
 								f = EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName());
 								//first = true;
@@ -313,17 +327,18 @@ public class ParseFiles {
 								//second = true;
 								
 								
-								f.addOutgoing(s);
-								s.addIncoming(f);
+								f.addIncoming(s);
+								s.addOutgoing(f);
 								
-								f.setHasOutgoing(true);
-								s.setHasIncoming(true);
+								f.setHasIncoming(true);
+								s.setHasOutgoing(true);
 								EntitySet.put((root + f.getName()), f);
-								EntitySet.put((root + s.getName()), s);
+								EntitySet.put(root2 + "." + n.resolve().getQualifiedName(), s);
+
 							}
 						}
 						}catch(Exception e){
-							System.out.println("CATCH");
+							//System.out.println("CATCH");
 						}
 
 						/*
@@ -471,7 +486,7 @@ public class ParseFiles {
 
 					
 					VariableUsage.add(v);
-					System.out.println("Variable Usage!");
+					//System.out.println("Variable Usage!");
 				}
 				
 			}

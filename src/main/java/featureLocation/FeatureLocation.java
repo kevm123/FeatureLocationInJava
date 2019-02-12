@@ -16,32 +16,35 @@ public class FeatureLocation {
 	private static BagOfWords bagOfWords = new BagOfWords();
 	private static ResultModel rm = new ResultModel();
 	private static String searchString;
+	private static FileScreen fs = new FileScreen();
 
 	public static void main(String[] args) throws IOException {
-		 SwingUtilities.invokeLater ( new Runnable ()
-	        {
-	            public void run ()
-	            {
-	                WebLookAndFeel.install ();
-	            }
-	        } );
-		parser.parse();
-		bagOfWords.create();
-		setUpSearch();
-		
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				WebLookAndFeel.install();
+			}
+		});
+
+		fs.setVisible(true);
 	}
 	
-	public static void setUpSearch(){
+	public static void startParse(String input) throws IOException{
+		parser.parse(input);
+		bagOfWords.create();
+		setUpSearch();
+	}
+
+	public static void setUpSearch() {
 		SearchScreen ss = new SearchScreen(sm);
 		ss.setVisible(true);
 	}
-	
-	public static void searchWord(){
+
+	public static void searchWord() {
 		searchString = sm.getSearch();
 		bagOfWords.search(searchString, rm);
 		ResultScreen rs = new ResultScreen(rm.getEntities());
 		rs.setVisible(true);
-		
+
 	}
 
 }
