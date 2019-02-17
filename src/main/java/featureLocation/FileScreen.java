@@ -85,7 +85,6 @@ public class FileScreen extends JFrame implements ActionListener {
                 	try {
 						fl.startParse(input);
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
                 	}

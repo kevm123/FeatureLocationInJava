@@ -67,11 +67,13 @@ public class ParseFiles {
 	static ArrayList<Entity> Entities = new ArrayList<Entity>();
 	static ArrayList<VariableUsage> VariableUsage = new ArrayList<VariableUsage>();
 	private static String root = "";
+	private static ArrayList<String> relationships= new ArrayList<String>();
+	private int count;
 
 	public void parse(String in) throws IOException {
 
 		CompilationUnit cu = null;
-		PATH = in;
+		PATH = in+"\\src";
 
 		CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
 		combinedTypeSolver.add(new ReflectionTypeSolver(false));
@@ -120,6 +122,8 @@ public class ParseFiles {
 			// System.out.println("------------------------------");
 		}
 
+		matchRelations();
+		
 		for (int i = 0; i < filesInFolder.size(); i++) {
 			System.out.println(i + "/" + filesInFolder.size());
 			
@@ -138,7 +142,8 @@ public class ParseFiles {
 			
 		}
 		
-
+		System.out.println(count);
+		System.out.println(EntitySet.size());
 		//printTest();
 	}
 
@@ -218,6 +223,23 @@ public class ParseFiles {
 			e.setChildren(children);
 
 			Entities.add(e);
+			
+			MethodDeclaration m = (MethodDeclaration) node;
+			m.accept(new VoidVisitorAdapter<Void>() {
+
+				String root2 = PATH.replace("\\", ".");
+				@Override
+				public void visit(final MethodCallExpr n, final Void arg) {
+					
+					try{
+						relationships.add(root+(m.resolve()).getClassName() + "." + (m.resolve()).getName()+"---"+(root2+"."+n.resolve().getQualifiedName()));
+					}catch(Exception e){
+						
+					}
+					
+				super.visit(n, arg);
+				}
+			}, null);
 		}
 
 		else if (node instanceof ConstructorDeclaration) {
@@ -276,172 +298,20 @@ public class ParseFiles {
 		Iterator it = EntitySet.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry pair = (Map.Entry) it.next();
-			// System.out.println(pair.getKey() + " = " +
-			// ((Entity)pair.getValue()).getName());
 			((Entity) pair.getValue()).print();
 		}
 
-		/*
-		 * for(int i=0; i<EntitySet.size(); i++) { EntitySet.get(i).print(); }
-		 */
 		for (int i = 0; i < VariableUsage.size(); i++) {
 			VariableUsage.get(i).print();
 		}
 
 	}
 
-	/*
-	 * child = nodes in file; m = any child of type MethodDeclaration; n =
-	 * MethodCallExpr in m val = Hashmap Entries pair = Hashmap Entries
-	 */
+
 	public static void getCalls(Node node) {
 
 		for (Node child : node.getChildNodes()) {
-
-			// Find all Methods and use visitor to go through
 			if (child instanceof MethodDeclaration) {
-				MethodDeclaration m = (MethodDeclaration) child;
-				m.accept(new VoidVisitorAdapter<Void>() {
-
-					@Override
-					public void visit(final MethodCallExpr n, final Void arg) {
-
-						Entity f = new Entity();
-						Entity s = new Entity();
-						//boolean first = false, second = false;
-						
-						try{
-						String root2 = PATH.replace("\\", ".");
-						
-						if (EntitySet.get(root2 + "." + n.resolve().getQualifiedName()) != null) {
-							if (EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName()) != null) {
-							
-								/*
-								System.out.println("\t\t" + root + (m.resolve()).getClassName() + "."
-										+ (m.resolve()).getName() + "--" + n.resolve().getQualifiedName());
-								*/
-										
-								
-								f = EntitySet.get(root + (m.resolve()).getClassName() + "." + (m.resolve()).getName());
-								//first = true;
-								s = EntitySet.get(root2 + "." + n.resolve().getQualifiedName());
-								//second = true;
-								
-								
-								f.addIncoming(s);
-								s.addOutgoing(f);
-								
-								f.setHasIncoming(true);
-								s.setHasOutgoing(true);
-								EntitySet.put((root + f.getName()), f);
-								EntitySet.put(root2 + "." + n.resolve().getQualifiedName(), s);
-
-							}
-						}
-						}catch(Exception e){
-							//System.out.println("CATCH");
-						}
-
-						/*
-						 * if(EntitySet.get(root+(n.resolve()).getClassName()+
-						 * "."+(n.resolve()).getName()) != null){ s = (Entity)
-						 * EntitySet.get(root+(n.resolve()).getClassName()+"."+(
-						 * n.resolve()).getName()); second = true; }
-						 */
-
-						/*
-						 * 
-						 * //visiting all Method calls see if its a call to a
-						 * user defined method Entity f = new Entity(); Entity s
-						 * = new Entity(); boolean first = false, second =
-						 * false; Iterator it = EntitySet.entrySet().iterator();
-						 * 
-						 * //Using the set of all found entities, run through
-						 * see if they match the method calling or caller
-						 * while(it.hasNext() || !first && !second) { //First
-						 * get the name of each entity we have stored
-						 * HashMap.Entry val = (HashMap.Entry)it.next();
-						 * 
-						 * String entName; if(((Entity)
-						 * val.getValue()).getName().contains(".")){ entName =
-						 * ((Entity)
-						 * val.getValue()).getName().substring(((Entity)
-						 * val.getValue()).getName().lastIndexOf(".")+1); } else
-						 * entName = ((Entity) val.getValue()).getName();
-						 * 
-						 * //System.out.println(((String)
-						 * val.getKey())==(root+(m.resolve()).getClassName()+"."
-						 * +(m.resolve()).getName()));
-						 * //System.out.println(((String)
-						 * val.getKey())==(root+(n.resolve()).getClassName()+"."
-						 * +(n.resolve()).getName()));
-						 * 
-						 * //Next see if the entity is 1) a method, 2)has the
-						 * same name and 3)is being called in the same class as
-						 * the method in question if(((Entity)
-						 * val.getValue()).getType() == 3 &&
-						 * m.getNameAsString().equals(entName) && ((Entity)
-						 * val.getValue()).getParent().getName().equals(m.
-						 * resolve().getClassName())) { first = true; f =
-						 * (Entity) val.getValue();
-						 * System.out.println("\n"+root+(m.resolve()).
-						 * getClassName()+"."+(m.resolve()).getName()+"\n"+val.
-						 * getKey()); }
-						 * 
-						 * //See if the entity is 1) has the same name as the
-						 * method call and 2) is from the same class as where
-						 * the method being called is instantiated else
-						 * if(((Entity) val.getValue()).getType() == 3 &&
-						 * ((NodeWithSimpleName<ClassOrInterfaceDeclaration>)
-						 * n.getParentNodeForChildren()).getNameAsString().
-						 * equals(entName) ) { try{ if(n.resolve().hasName()) {
-						 * if(((Entity)
-						 * val.getValue()).getParent().getName().equals(n.
-						 * resolve().getClassName())) { second = true; s =
-						 * (Entity) val.getValue();
-						 * System.out.println("\n"+root+(n.resolve()).
-						 * getClassName()+"."+(n.resolve()).getName()+"\n"+val.
-						 * getKey()); } } } catch(Exception e){
-						 * //System.out.println(((NodeWithSimpleName<
-						 * ClassOrInterfaceDeclaration>)
-						 * n.getParentNodeForChildren()).getNameAsString()+
-						 * "...."); } } }
-						 * 
-						 */
-						
-						/*
-
-						if (first && second) {
-							
-
-							// Find the 2 entities again and update them with
-							// the incoming and outgoings
-							first = false;
-							second = false;
-							String fKey = "";
-							String sKey = "";
-
-							
-							 for(HashMap.Entry<String, Entity> entry :
-							 EntitySet.entrySet()) {
-							 if(f.getName().equals(((Entity)
-							 entry.getValue()).getName())) { first = true;
-							 f.setHasOutgoing(true); fKey = entry.getKey(); }
-							 if(s.getName().equals(((Entity)
-							 entry.getValue()).getName())) { second = true;
-							 s.setHasIncoming(true); sKey = entry.getKey(); }
-							 }
-							 
-						
-						}
-						
-						*/
-
-						super.visit(n, arg);
-
-					}
-				}, null);
-
 				findVarUsage(child, child.getParentNode());
 			}
 		}
@@ -463,7 +333,6 @@ public class ParseFiles {
 	private static void getVariableUsage(Node child, Optional<Node> parent) {
 		VariableUsage v = new VariableUsage();
 		Node p = parent.get();
-		//boolean one = false, two = false, three = false;
 		
 		String callee = root+(child.toString()).substring(0, (child.toString()).indexOf('.'));
 		String caller = root+((NodeWithSimpleName<ClassOrInterfaceDeclaration>) p).getNameAsString();
@@ -492,33 +361,38 @@ public class ParseFiles {
 				
 			}
 		}
-		
-		/*
-		Iterator it = EntitySet.entrySet().iterator();
-		while (it.hasNext()) {
-			HashMap.Entry val = (HashMap.Entry) it.next();
 
-			if ((child.toString()).substring(0, (child.toString()).indexOf('.'))
-					.equals(((Entity) val.getValue()).getName())) {
-				Entity e = (Entity) val.getValue();
-				v.setCallee(e);
-				one = true;
-			}
-			if (((NodeWithSimpleName<ClassOrInterfaceDeclaration>) p).getNameAsString()
-					.equals(((Entity) val.getValue()).getName())) {
-				Entity e = (Entity) val.getValue();
-				v.setCaller(e);
-				two = true;
-			}
-			if (child.toString().equals(((Entity) val.getValue()).getName())) {
-				Entity e = (Entity) val.getValue();
-				v.setVariable(e);
-				three = true;
-			}
-		}
-		
-		*/
+	}
+	
+	private void matchRelations(){
+		try{
+			String[]splits;
+			Entity f,s;
+			
+			for(int i=0; i<relationships.size(); i++){
+				
+				
+				splits = relationships.get(i).split("---");
+			
+				if (EntitySet.get(splits[0]) != null) {
+					if (EntitySet.get(splits[1]) != null) {
+						f = EntitySet.get(splits[0]);
+						s = EntitySet.get(splits[1]);
 
+						f.addIncoming(s);
+						s.addOutgoing(f);
+
+						f.setHasIncoming(true);
+						s.setHasOutgoing(true);
+						EntitySet.put(splits[0], f);
+						EntitySet.put(splits[1], s);
+
+						count++;
+					}
+				}
+			}
+			}catch(Exception e){
+			}
 	}
 
 }

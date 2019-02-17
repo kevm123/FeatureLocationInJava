@@ -85,10 +85,11 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private void showcard1(){
 		
 		panel.removeAll();
+		panel.revalidate();
+		panel.repaint();
 		JScrollPane listScrollPane = new JScrollPane();
 		listScrollPane.setViewportView(list);
 		listScrollPane.setPreferredSize(new Dimension(250,247));
-		JPanel rightPanel = new JPanel();
 		
 		JPanel internal = new JPanel();
 		buttons.removeAll();
@@ -143,7 +144,11 @@ public class ResultScreen extends JFrame implements ActionListener {
 		
 		relatedEntities = e.getRelations();
 		card2.removeAll();
+		card2.revalidate();
+		card2.repaint();
 		panel.removeAll();
+		panel.revalidate();
+		panel.repaint();
 		values = e.print2();
 		Font font = new Font("Courier", Font.BOLD,12);
 		Color red = new Color(241,57,83);
@@ -216,10 +221,12 @@ public class ResultScreen extends JFrame implements ActionListener {
 		//card2.add(buttons);
 		card2.setLayout(new BoxLayout(card2,BoxLayout.Y_AXIS));
 		card2.setBorder(BorderFactory.createLineBorder(Color.blue));
-        panel.setPreferredSize(new Dimension(400,400));
+		JScrollPane scroll = new JScrollPane(card2,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setPreferredSize(new Dimension(300,300));
+		panel.setPreferredSize(new Dimension(400,400));
 		constraints.gridx = 0;
         constraints.gridy = 0;
-		panel.add(card2, constraints);
+		panel.add(scroll, constraints);
 		constraints.gridx = 0;
         constraints.gridy = 1;
 		panel.add(cb, constraints);
@@ -284,7 +291,6 @@ public class ResultScreen extends JFrame implements ActionListener {
 		{
 			if(stack.size()>1){
 				int length = stack.size();
-				System.out.println(stack.toString());
 				stack.remove(length-1);
 				showcard2(stack.get(stack.size()-1));
 			}
