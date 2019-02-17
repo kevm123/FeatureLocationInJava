@@ -23,6 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -40,6 +41,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private JLabel name;
 	private JButton selectBtn = new JButton("Select");
 	private JButton returnBtn = new JButton("Return");
+	private JButton undo = new JButton("Undo");
 	private ArrayList<Entity> Entities;
 	private DefaultListModel<String> model;
 	private JList<String> list;
@@ -49,6 +51,10 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private CardLayout cardLayout;
 	private String[] values;
 	private JLabel xLabel = new JLabel("X");
+	private JPanel buttons = new JPanel();
+	private JComboBox<String> cb;
+	private ArrayList<Entity> relatedEntities = new ArrayList<Entity>();
+	private ArrayList<Entity> stack = new ArrayList<Entity>();
 	private GridBagConstraints constraints = new GridBagConstraints();
 	
 	public ResultScreen(ArrayList in){
@@ -72,19 +78,26 @@ public class ResultScreen extends JFrame implements ActionListener {
 
         selectBtn.addActionListener(this);
         returnBtn.addActionListener(this);
+        undo.addActionListener(this);
         showcard1();
     }
 	
 	private void showcard1(){
+		
+		panel.removeAll();
+		panel.revalidate();
+		panel.repaint();
 		JScrollPane listScrollPane = new JScrollPane();
 		listScrollPane.setViewportView(list);
-		listScrollPane.setPreferredSize(new Dimension(200,247));
-		JPanel rightPanel = new JPanel();
+		listScrollPane.setPreferredSize(new Dimension(250,247));
 		
 		JPanel internal = new JPanel();
+		buttons.removeAll();
+		buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
 		internal.add(listScrollPane);
-		internal.add(selectBtn);
-		internal.add(returnBtn);
+		buttons.add(selectBtn);
+		buttons.add(returnBtn);
+		internal.add(buttons);
 		internal.setLayout(new FlowLayout(FlowLayout.LEFT));
 		internal.setPreferredSize(new Dimension(350,250));
 		
@@ -117,9 +130,25 @@ public class ResultScreen extends JFrame implements ActionListener {
         });
 	}
 	
-	private void showcard2(int index){
-		Entity e = Entities.get(index);
+	private void showcard2(Entity e){
+		
+		if(stack.size() >= 1)
+		{
+			if(!(stack.get(stack.size()-1).equals(e)))
+			{
+				stack.add(e);
+			}
+		}
+		else
+			stack.add(e);
+		
+		relatedEntities = e.getRelations();
 		card2.removeAll();
+		card2.revalidate();
+		card2.repaint();
+		panel.removeAll();
+		panel.revalidate();
+		panel.repaint();
 		values = e.print2();
 		Font font = new Font("Courier", Font.BOLD,12);
 		Color red = new Color(241,57,83);
@@ -138,6 +167,8 @@ public class ResultScreen extends JFrame implements ActionListener {
 		JLabel children = new JLabel(values[3]);
 		JLabel incoming = new JLabel(values[4]);
 		JLabel outgoing = new JLabel(values[5]);
+		
+		ArrayList<String> optionalList = new ArrayList<String>();
 		
 		NAME.setFont(font);
 		NAME.setForeground(red);
@@ -158,6 +189,9 @@ public class ResultScreen extends JFrame implements ActionListener {
 		card2.add(PARENT);
 		card2.add(parent);
 		card2.add(CHILDREN);
+		
+		
+		optionalList.add(values[2]);
 		for(int i=0; i<childrenArray.length; i++){
 			card2.add(new JLabel(childrenArray[i]));
 		}
@@ -169,16 +203,44 @@ public class ResultScreen extends JFrame implements ActionListener {
 		for(int i=0; i<outgoingArray.length; i++){
 			card2.add(new JLabel(outgoingArray[i]));
 		}
-		card2.add(returnBtn);
-		card2.setLayout(new BoxLayout(card2, BoxLayout.Y_AXIS));
-		card2.setBorder(BorderFactory.createLineBorder(Color.blue));
-        panel.setPreferredSize(new Dimension(400,300));
 		
+		String[] choices = new String[relatedEntities.size()];
+		for(int i=0; i<relatedEntities.size(); i++){
+			if(relatedEntities.get(i) != null){
+				choices[i] = relatedEntities.get(i).getName();
+			}
+		}
+		
+	    cb = new JComboBox<String>(choices);
+		
+	    buttons.removeAll();
+	    buttons.setLayout(new FlowLayout());
+		buttons.add(returnBtn);
+		buttons.add(selectBtn);
+		buttons.add(undo);
+		//card2.add(buttons);
+		card2.setLayout(new BoxLayout(card2,BoxLayout.Y_AXIS));
+		card2.setBorder(BorderFactory.createLineBorder(Color.blue));
+		JScrollPane scroll = new JScrollPane(card2,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scroll.setPreferredSize(new Dimension(300,300));
+		panel.setPreferredSize(new Dimension(400,400));
 		constraints.gridx = 0;
         constraints.gridy = 0;
-		panel.add(card2, constraints);
+		panel.add(scroll, constraints);
+		constraints.gridx = 0;
+        constraints.gridy = 1;
+		panel.add(cb, constraints);
+		constraints.gridx = 0;
+        constraints.gridy = 2;
+		panel.add(buttons, constraints);
 		
-       
+		 constraints.anchor = GridBagConstraints.NORTH;
+	        constraints.gridx = 1;
+	        constraints.gridy = 0;
+	        xLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+	        
+	        panel.add(xLabel, constraints);
+		
         pack();
 		 setLocationRelativeTo(null);
 		 
@@ -201,9 +263,16 @@ public class ResultScreen extends JFrame implements ActionListener {
 		
 		if (e.getActionCommand().equals("Select"))
         {
-            int index = list.getSelectedIndex();
-            card1.setVisible(false);
-            showcard2(index);
+			if(card2.isVisible()){
+				int selected = cb.getSelectedIndex();
+				showcard2(relatedEntities.get(selected));
+			}
+			else if(card1.isVisible()){
+				int index = list.getSelectedIndex();
+				card1.setVisible(false);
+				Entity ent = Entities.get(index);
+				showcard2(ent);
+			}
         }        
 		
 		if (e.getActionCommand().equals("Return"))
@@ -216,7 +285,20 @@ public class ResultScreen extends JFrame implements ActionListener {
 				FeatureLocation.setUpSearch();
 				dispose();
 			}
-        }           
+        }     
+		
+		if(e.getActionCommand().equals("Undo"))
+		{
+			if(stack.size()>1){
+				int length = stack.size();
+				stack.remove(length-1);
+				showcard2(stack.get(stack.size()-1));
+			}
+			else{
+				card2.setVisible(false);
+				showcard1();
+			}
+		}
 
 	}
 }

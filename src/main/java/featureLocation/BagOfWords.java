@@ -43,13 +43,10 @@ public class BagOfWords {
 			} else
 				input = ((Entity) pair.getValue()).getName();
 
-			//System.out.println("\n\n-----" + input + "------\n");
 			String[] list = regexSplit(input);
-			Stemmer stemmer = new Stemmer();
 			for (int i = 0; i < list.length; i++) {
 				stemmed = tidyStem(list[i]);
 				list[i] = stemmed;
-				//System.out.println("------------------------");
 
 				if (!(stopWords.contains(stemmed))) {
 					Entities = SearchSet.get(stemmed);
@@ -77,7 +74,6 @@ public class BagOfWords {
 
 			stemmed = tidyStem(list[i]);
 			list[i] = stemmed;
-			//System.out.println("------------------------");
 
 		}
 
@@ -106,14 +102,12 @@ public class BagOfWords {
 
 	private static String tidyStem(String in) {
 		Stemmer stemmer = new Stemmer();
-		//System.out.println(in);
 		in = in.replaceAll("[^a-zA-Z0-9]", "");
 
 		in = in.toLowerCase();
 
 		String stemmed = stemmer.stem(in);
 		in = stemmed;
-		//System.out.println(stemmed);
 		return stemmed;
 	}
 

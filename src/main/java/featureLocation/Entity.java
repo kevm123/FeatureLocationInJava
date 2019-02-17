@@ -116,6 +116,32 @@ public class Entity {
 		return names;
 
 	}
+	
+	public ArrayList<Entity> getRelations(){
+		ArrayList<Entity> out = new ArrayList<Entity>();
+		if(parent != null)
+			out.add(parent);
+		Iterator it;
+		if (children != null) {
+			it = children.iterator();
+			while (it.hasNext()) {
+				out.add((Entity) it.next());
+			}
+		}
+		if (incoming.size() > 0) {
+			it = incoming.iterator();
+			while (it.hasNext()) {
+				out.add((Entity) it.next());
+			}
+		}
+		if (outgoing.size() > 0) {
+			it = outgoing.iterator();
+			while (it.hasNext()) {
+				out.add((Entity) it.next());
+			}
+		}
+		return out;
+	}
 
 	public void print() {
 		System.out.println("Name:\t" + name);
