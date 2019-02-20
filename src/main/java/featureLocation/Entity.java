@@ -22,6 +22,7 @@ public class Entity {
 	private Set<Entity> children;
 	private Set<Entity> incoming = new HashSet<Entity>();
 	private Set<Entity> outgoing = new HashSet<Entity>();
+	private int weight;
 	private boolean hasOutgoing = false, hasIncoming = false;
 
 	public void setType(int in) {
@@ -86,6 +87,14 @@ public class Entity {
 
 	public void setHasIncoming(boolean in) {
 		hasIncoming = in;
+	}
+	
+	public void setWeight(int in) {
+		weight = in;
+	}
+
+	public int getWeight() {
+		return weight;
 	}
 
 	public ArrayList<String> getAllNames() {

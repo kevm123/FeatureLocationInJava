@@ -37,6 +37,10 @@ public class SearchScreen extends JFrame implements ActionListener {
 	        Font font = new Font("Courier", Font.BOLD,18);
 	        xLabel.setFont(font);
 	        panel.add(xLabel, constraints);
+	        
+	        constraints.gridx = 1;
+	        constraints.gridy = 0;     
+	        panel.add(new JLabel("Search Screen"), constraints);
 	         
 	        constraints.gridx = 1;
 	        constraints.gridy = 1;     

@@ -1,6 +1,7 @@
 package featureLocation;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,13 +33,14 @@ public class FileScreen extends JFrame implements ActionListener {
     	
     	this.setUndecorated(true);
     	JPanel panel = new JPanel(new GridBagLayout());
+    	panel.setPreferredSize(new Dimension(250,125));
     	frame.add(panel);
 
     	GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.WEST;
         constraints.insets = new Insets(10, 10, 10, 10);
         
-        constraints.gridx = 3;
+        constraints.gridx = 4;
         constraints.gridy = 0;     
         xLabel.setForeground(new Color(241,57,83));
         xLabel.setBounds(619,0,84,27);
@@ -46,16 +48,16 @@ public class FileScreen extends JFrame implements ActionListener {
         xLabel.setFont(font);
         panel.add(xLabel, constraints);
         
-        constraints.gridx = 1;
+        constraints.gridx = 2;
         constraints.gridy = 3;
         constraints.gridwidth = 2;
         constraints.anchor = GridBagConstraints.CENTER;
         panel.add(searchBtn, constraints);
         
-        constraints.gridx = 1;
+        constraints.gridx = 2;
         constraints.gridy = 4;
         constraints.anchor = GridBagConstraints.CENTER;
-        panel.add(new JLabel("(Please select the '/src' as your file root)"),constraints);
+        panel.add(new JLabel("(Please select projects root)"),constraints);
         
         add(panel);
 

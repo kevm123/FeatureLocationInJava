@@ -70,81 +70,83 @@ public class ParseFiles {
 	private static ArrayList<String> relationships= new ArrayList<String>();
 	private int count;
 
-	public void parse(String in) throws IOException {
+	public boolean parse(String in) throws IOException {
 
 		CompilationUnit cu = null;
-		PATH = in+"\\src";
+		PATH = in + "\\src";
+		File baseFile = new File(PATH);
+		if (baseFile.exists()) {
 
-		CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
-		combinedTypeSolver.add(new ReflectionTypeSolver(false));
-		combinedTypeSolver.add(new JavaParserTypeSolver(new File(PATH)));
-		JavaParser.getStaticConfiguration().setSymbolResolver(new JavaSymbolSolver(combinedTypeSolver));
+			CombinedTypeSolver combinedTypeSolver = new CombinedTypeSolver();
+			combinedTypeSolver.add(new ReflectionTypeSolver(false));
+			combinedTypeSolver.add(new JavaParserTypeSolver(new File(PATH)));
+			JavaParser.getStaticConfiguration().setSymbolResolver(new JavaSymbolSolver(combinedTypeSolver));
 
-		ArrayList<File> filesInFolder = parseDirect(PATH);
+			ArrayList<File> filesInFolder = parseDirect(PATH);
 
-		for (int i = 0; i < filesInFolder.size(); i++) {
+			for (int i = 0; i < filesInFolder.size(); i++) {
 
-			System.out.println(i + "/" + filesInFolder.size());
+				System.out.println(i + "/" + filesInFolder.size());
+				cu = JavaParser.parse(filesInFolder.get(i));
 
-			// System.out.println("------------------------------");
+				String[] split = (filesInFolder.get(i).toString()).split("\\\\");
+				Entities.clear();
 
-			// System.out.println(filesInFolder.get(i).toString());
-			cu = JavaParser.parse(filesInFolder.get(i));
+				root = "";
+				for (int k = 0; k < split.length - 1; k++) {
+					root += (split[k] + ".");
+				}
 
-			String[] split = (filesInFolder.get(i).toString()).split("\\\\");
-			Entities.clear();
+				// YamlPrinter printer = new YamlPrinter(true);
+				// System.out.println(printer.output(cu));
 
-			root = "";
-			for (int k = 0; k < split.length - 1; k++) {
-				root += (split[k] + ".");
+				NodeList<TypeDeclaration<?>> ty = cu.getTypes();
+				for (TypeDeclaration<?> typeDeclaration : ty) {
+					Node node = (Node) typeDeclaration;
+					processNode(node);
+				}
+
+				String key;
+				for (int e = 0; e < Entities.size(); e++) {
+					key = root + Entities.get(e).getName();
+					EntitySet.put(key, Entities.get(e));
+				}
 			}
 
-			YamlPrinter printer = new YamlPrinter(true);
-			// System.out.println(printer.output(cu));
+			matchRelations();
 
-			NodeList<TypeDeclaration<?>> ty = cu.getTypes();
-			for (TypeDeclaration<?> typeDeclaration : ty) {
-				Node node = (Node) typeDeclaration;
-				processNode(node);
+			for (int i = 0; i < filesInFolder.size(); i++) {
+				System.out.println(i + "/" + filesInFolder.size());
+
+				String[] split = (filesInFolder.get(i).toString()).split("\\\\");
+				root = "";
+				for (int k = 0; k < split.length - 1; k++) {
+					root += (split[k] + ".");
+				}
+
+				cu = JavaParser.parse(filesInFolder.get(i));
+				NodeList<TypeDeclaration<?>> ty = cu.getTypes();
+				for (TypeDeclaration<?> typeDeclaration : ty) {
+					Node node = (Node) typeDeclaration;
+					getCalls(node);
+				}
+
 			}
 
-			/*
-			 * for (TypeDeclaration<?> typeDeclaration : ty) { Node node =
-			 * (Node) typeDeclaration; getCalls(node); }
-			 */
-
-			String key;
-			for (int e = 0; e < Entities.size(); e++) {
-				key = root + Entities.get(e).getName();
-				EntitySet.put(key, Entities.get(e));
+			System.out.println(count);
+			System.out.println(EntitySet.size());
+			// printTest();
+			
+			if(EntitySet.size()>0){
+				return true;
 			}
-
-			// System.out.println("------------------------------");
+			else
+				return false;
+			
+		} else {
+			System.out.println("Invalid Location");
+			return false;
 		}
-
-		matchRelations();
-		
-		for (int i = 0; i < filesInFolder.size(); i++) {
-			System.out.println(i + "/" + filesInFolder.size());
-			
-			String[] split = (filesInFolder.get(i).toString()).split("\\\\");
-			root = "";
-			for (int k = 0; k < split.length - 1; k++) {
-				root += (split[k] + ".");
-			}
-			
-			cu = JavaParser.parse(filesInFolder.get(i));
-			NodeList<TypeDeclaration<?>> ty = cu.getTypes();
-			for (TypeDeclaration<?> typeDeclaration : ty) {
-				Node node = (Node) typeDeclaration;
-				getCalls(node);
-			}
-			
-		}
-		
-		System.out.println(count);
-		System.out.println(EntitySet.size());
-		//printTest();
 	}
 
 	public static ArrayList<File> parseDirect(String in) throws IOException {

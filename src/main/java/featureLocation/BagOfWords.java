@@ -96,7 +96,7 @@ public class BagOfWords {
 	}
 
 	private static String[] regexSplit(String in) {
-		String[] list = in.split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|[.]");
+		String[] list = in.split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|[.]|\\s+");
 		return list;
 	}
 

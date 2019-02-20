@@ -51,6 +51,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private CardLayout cardLayout;
 	private String[] values;
 	private JLabel xLabel = new JLabel("X");
+	private JLabel title = new JLabel();
 	private JPanel buttons = new JPanel();
 	private JComboBox<String> cb;
 	private ArrayList<Entity> relatedEntities = new ArrayList<Entity>();
@@ -70,7 +71,7 @@ public class ResultScreen extends JFrame implements ActionListener {
         xLabel.setFont(font);
 
 		for (int i = 0; i < Entities.size(); i++) {
-			model.addElement(Entities.get(i).getName());
+			model.addElement(Entities.get(i).getName()+"("+Entities.get(i).getWeight()+")");
 		}
 		list = new JList<String>(model);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -84,6 +85,7 @@ public class ResultScreen extends JFrame implements ActionListener {
 	
 	private void showcard1(){
 		
+		stack.clear();
 		panel.removeAll();
 		panel.revalidate();
 		panel.repaint();
@@ -106,7 +108,7 @@ public class ResultScreen extends JFrame implements ActionListener {
         card1.setViewportView(internal);
 
         constraints.gridx = 0;
-        constraints.gridy = 0;
+        constraints.gridy = 1;
         constraints.insets = new Insets(2,2,2,2);
         panel.add(card1, constraints);
         panel.setPreferredSize(new Dimension(400,300));
@@ -117,8 +119,14 @@ public class ResultScreen extends JFrame implements ActionListener {
         constraints.gridx = 1;
         constraints.gridy = 0;
         xLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        
         panel.add(xLabel, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        title.setHorizontalAlignment(SwingConstants.LEFT);
+        title.setText("Weighted Results");
+        panel.add(title, constraints);
+        
         pack();
          setLocationRelativeTo(null);
         card1.setVisible(true);
@@ -225,21 +233,26 @@ public class ResultScreen extends JFrame implements ActionListener {
         scroll.setPreferredSize(new Dimension(300,300));
 		panel.setPreferredSize(new Dimension(400,400));
 		constraints.gridx = 0;
-        constraints.gridy = 0;
+        constraints.gridy = 1;
 		panel.add(scroll, constraints);
 		constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridy = 2;
 		panel.add(cb, constraints);
 		constraints.gridx = 0;
-        constraints.gridy = 2;
+        constraints.gridy = 3;
 		panel.add(buttons, constraints);
 		
 		 constraints.anchor = GridBagConstraints.NORTH;
-	        constraints.gridx = 1;
-	        constraints.gridy = 0;
-	        xLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-	        
-	        panel.add(xLabel, constraints);
+	     constraints.gridx = 1;
+	     constraints.gridy = 0;
+	     xLabel.setHorizontalAlignment(SwingConstants.RIGHT);	        
+	     panel.add(xLabel, constraints);
+	     
+	     constraints.gridx = 0;
+	     constraints.gridy = 0;
+	     title.setHorizontalAlignment(SwingConstants.LEFT);
+	     title.setText("Entity Information");
+	     panel.add(title, constraints);
 		
         pack();
 		 setLocationRelativeTo(null);

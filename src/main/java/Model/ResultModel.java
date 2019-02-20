@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import featureLocation.Entity;
 
@@ -42,6 +44,10 @@ public class ResultModel {
 		tempNames = in.getAllNames();
 		String entName, stem;
 		int lastIndex;
+		for (int i = 0; i < list.length; i++) {
+			if(in.getName().toLowerCase().contains(list[i]))
+				count=count+5;
+		}
 		for (int k = 0; k < tempNames.size(); k++) {
 			entName = tempNames.get(k);
 			for (int i = 0; i < list.length; i++) {
@@ -58,11 +64,13 @@ public class ResultModel {
 				}
 			}
 		}
+		in.setWeight(count);
 		return count;
 	}
 
 	public void sortEntities(String[] list) {
 		this.list = list;
+		removeDuplicates();
 		Collections.sort(Entities, comparator);
 	}
 
@@ -79,5 +87,13 @@ public class ResultModel {
 			return 0;
 		}
 	};
+	
+	private void removeDuplicates(){ 
+        Set<Entity> set = new LinkedHashSet<>(); 
+  
+        set.addAll(Entities);
+        Entities.clear(); 
+        Entities.addAll(set); 
+	}
 
 }

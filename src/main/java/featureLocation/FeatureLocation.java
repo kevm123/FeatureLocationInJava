@@ -5,6 +5,8 @@ import Model.SearchModel;
 import java.awt.EventQueue;
 import java.io.IOException;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.alee.laf.WebLookAndFeel;
@@ -28,10 +30,16 @@ public class FeatureLocation {
 		fs.setVisible(true);
 	}
 	
-	public static void startParse(String input) throws IOException{
-		parser.parse(input);
-		bagOfWords.create();
-		setUpSearch();
+	public static void startParse(String input) throws IOException {
+		boolean okParse = parser.parse(input);
+		if (okParse) {
+			bagOfWords.create();
+			setUpSearch();
+		}
+		else{
+			fs.setVisible(true);
+			JOptionPane.showMessageDialog(new JFrame(),"Invalid File Location","Warning",JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	public static void setUpSearch() {
