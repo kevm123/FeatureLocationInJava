@@ -40,6 +40,10 @@ public class BagOfWords {
 			if (((Entity) pair.getValue()).getName().contains(".")) {
 				input = ((Entity) pair.getValue()).getName()
 						.substring(((Entity) pair.getValue()).getName().lastIndexOf(".") + 1);
+				if(((Entity) pair.getValue()).getType() == 6 || ((Entity) pair.getValue()).getType() == 7)
+				{
+					input = ((Entity) pair.getValue()).getName();
+				}
 			} else
 				input = ((Entity) pair.getValue()).getName();
 

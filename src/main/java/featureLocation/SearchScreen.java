@@ -11,7 +11,7 @@ import Model.SearchModel;
 
 public class SearchScreen extends JFrame implements ActionListener {
 		private JFrame frame = new JFrame();
-		private String input;
+		private String input=null;
 	 	private JTextField inputText = new JTextField(20);
 	    private JLabel searchLabel = new JLabel("Search");
 	    private JLabel xLabel = new JLabel("X");
@@ -73,7 +73,7 @@ public class SearchScreen extends JFrame implements ActionListener {
 			
 	                input = inputText.getText().toString();
 	                
-	                if(!input.isEmpty()){
+	                if(!input.isEmpty() && !input.equals(null)){
 	                	sm.setSearch(input);
 	                	continueSearch();
 	                }                

@@ -56,6 +56,16 @@ public class Entity {
 	public Set<Entity> getChildren() {
 		return children;
 	}
+	
+	public void addChildren(Entity in) {
+		if(children != null)
+			children.add(in);
+		else{
+			children = new HashSet<Entity>();
+			children.add(in);
+		}
+			
+	}
 
 	public void setIncoming(Set<Entity> in) {
 		incoming = in;
@@ -99,7 +109,7 @@ public class Entity {
 
 	public ArrayList<String> getAllNames() {
 		ArrayList<String> names = new ArrayList<String>();
-		if (type != 0 && type != 6){
+		if (type != 0 && type != 7){
 			names.add(parent.getName());
 		}
 		Iterator it;
@@ -155,29 +165,31 @@ public class Entity {
 	public void print() {
 		System.out.println("Name:\t" + name);
 		System.out.println("Type:\t" + type);
-		if (type != 0 && type != 6)
+		if (type != 7)
 			System.out.println("Parent:\t" + parent.getName());
-		if (type == 0 || type == 3) {
+		if (type == 0 || type == 3 || type == 6 || type == 7) {
 
-			Iterator<Entity> it = children.iterator();
-			System.out.print("Children:");
-			while (it.hasNext()) {
-				System.out.println("\t" + it.next().getName());
-			}
-
-			if (type == 3 && hasOutgoing) {
-				Iterator<Entity> it2 = outgoing.iterator();
-				System.out.print("Outgoing:");
-				while (it2.hasNext()) {
-					System.out.println("\t" + it2.next().getName());
+			if (children != null) {
+				Iterator<Entity> it = children.iterator();
+				System.out.print("Children:");
+				while (it.hasNext()) {
+					System.out.println("\t" + it.next().getName());
 				}
-			}
 
-			if (type == 3 && hasIncoming) {
-				Iterator<Entity> it2 = incoming.iterator();
-				System.out.print("Incoming:");
-				while (it2.hasNext()) {
-					System.out.println("\t" + it2.next().getName());
+				if (type == 3 && hasOutgoing) {
+					Iterator<Entity> it2 = outgoing.iterator();
+					System.out.print("Outgoing:");
+					while (it2.hasNext()) {
+						System.out.println("\t" + it2.next().getName());
+					}
+				}
+
+				if (type == 3 && hasIncoming) {
+					Iterator<Entity> it2 = incoming.iterator();
+					System.out.print("Incoming:");
+					while (it2.hasNext()) {
+						System.out.println("\t" + it2.next().getName());
+					}
 				}
 			}
 
@@ -203,13 +215,17 @@ public class Entity {
         		break;
         case 5:  out[1] = "Variable";
         		break;
+        case 6:  out[1] = "Java File";
+				break;
+        case 7:  out[1] = "Package";
+				break;
         default: out[1] = "N\\A";
         		break;
 		}
 		
-		if (type != 0 && type != 6)
+		if (type != 7)
 			out[2] = (parent.getName());
-		if (type == 0 || type == 3) {
+		if (type == 0 || type == 3 || type == 6 || type == 7) {
 
 			Iterator<Entity> it = children.iterator();
 			String test;

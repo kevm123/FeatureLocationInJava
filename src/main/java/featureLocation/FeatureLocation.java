@@ -4,6 +4,9 @@ import Model.ResultModel;
 import Model.SearchModel;
 import java.awt.EventQueue;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -19,6 +22,7 @@ public class FeatureLocation {
 	private static ResultModel rm = new ResultModel();
 	private static String searchString;
 	private static FileScreen fs = new FileScreen();
+	//private static String startTime;
 
 	public static void main(String[] args) throws IOException {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -31,6 +35,10 @@ public class FeatureLocation {
 	}
 	
 	public static void startParse(String input) throws IOException {
+		/*DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();
+		startTime = dateFormat.format(date);
+		*/
 		boolean okParse = parser.parse(input);
 		if (okParse) {
 			bagOfWords.create();
@@ -43,6 +51,11 @@ public class FeatureLocation {
 	}
 
 	public static void setUpSearch() {
+		/*DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();
+		System.out.println(startTime+"\n"+dateFormat.format(date));
+		JOptionPane.showMessageDialog(new JFrame(),startTime+"\n"+dateFormat.format(date),"Warning",JOptionPane.ERROR_MESSAGE);
+		*/
 		SearchScreen ss = new SearchScreen(sm);
 		ss.setVisible(true);
 	}
@@ -52,7 +65,6 @@ public class FeatureLocation {
 		bagOfWords.search(searchString, rm);
 		ResultScreen rs = new ResultScreen(rm.getEntities());
 		rs.setVisible(true);
-
 	}
 
 }

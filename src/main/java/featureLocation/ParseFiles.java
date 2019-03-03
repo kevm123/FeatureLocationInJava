@@ -69,6 +69,7 @@ public class ParseFiles {
 	private static String root = "";
 	private static ArrayList<String> relationships= new ArrayList<String>();
 	private int count;
+	private static Entity file;
 
 	public boolean parse(String in) throws IOException {
 
@@ -85,6 +86,10 @@ public class ParseFiles {
 			ArrayList<File> filesInFolder = parseDirect(PATH);
 
 			for (int i = 0; i < filesInFolder.size(); i++) {
+				
+				file = new Entity();
+				file.setName(filesInFolder.get(i).getName());
+				file.setType(6);
 
 				System.out.println(i + "/" + filesInFolder.size());
 				cu = JavaParser.parse(filesInFolder.get(i));
@@ -111,6 +116,22 @@ public class ParseFiles {
 					key = root + Entities.get(e).getName();
 					EntitySet.put(key, Entities.get(e));
 				}
+				
+				Entity p;
+				if(EntitySet.get((cu.getPackageDeclaration()).get().getNameAsString()) != null){
+					p = EntitySet.get((cu.getPackageDeclaration()).get().getNameAsString());
+					p.addChildren(file);
+				}
+				else{
+					p = new Entity();
+					p.setName((cu.getPackageDeclaration()).get().getNameAsString());
+					p.setType(7);
+					p.addChildren(file);
+					EntitySet.put(p.getName(), p);
+				}
+				
+				file.setParent(p);
+				EntitySet.put(filesInFolder.get(i).getAbsolutePath().replace("\\", "."), file);
 			}
 
 			matchRelations();
@@ -135,7 +156,7 @@ public class ParseFiles {
 
 			System.out.println(count);
 			System.out.println(EntitySet.size());
-			// printTest();
+			//printTest();
 			
 			if(EntitySet.size()>0){
 				return true;
@@ -176,6 +197,8 @@ public class ParseFiles {
 
 			e.setType(0);
 			e.setName(((ClassOrInterfaceDeclaration) node).getNameAsString());
+			e.setParent(file);
+			file.addChildren(e);
 
 			for (Node child : node.getChildNodes()) {
 

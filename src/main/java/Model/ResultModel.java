@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import featureLocation.Entity;
 public class ResultModel {
 
 	private ArrayList<Entity> Entities;
+	private HashMap<Integer, ArrayList<Entity>> grouped = new HashMap<Integer, ArrayList<Entity>>();
 	private int[] Weights;
 	private static String[] list;
 
@@ -44,10 +46,6 @@ public class ResultModel {
 		tempNames = in.getAllNames();
 		String entName, stem;
 		int lastIndex;
-		for (int i = 0; i < list.length; i++) {
-			if(in.getName().toLowerCase().contains(list[i]))
-				count=count+5;
-		}
 		for (int k = 0; k < tempNames.size(); k++) {
 			entName = tempNames.get(k);
 			for (int i = 0; i < list.length; i++) {
@@ -55,7 +53,7 @@ public class ResultModel {
 				lastIndex = 0;
 				while (lastIndex != -1) {
 
-					lastIndex = entName.indexOf(stem, lastIndex);
+					lastIndex = entName.toLowerCase().indexOf(stem, lastIndex);
 
 					if (lastIndex != -1) {
 						count++;
@@ -71,7 +69,58 @@ public class ResultModel {
 	public void sortEntities(String[] list) {
 		this.list = list;
 		removeDuplicates();
-		Collections.sort(Entities, comparator);
+		groupEntities();
+	}
+	
+	private void groupEntities(){
+		ArrayList<Integer> keys = new ArrayList<Integer>();
+		String stem;
+		int lastIndex, count;
+		for(int e=0; e<Entities.size(); e++)
+		{
+			count=0;
+			for (int i = 0; i < list.length; i++) {
+				stem = list[i];
+				lastIndex = 0;
+				while (lastIndex != -1) {
+
+					lastIndex = Entities.get(e).getName().toLowerCase().indexOf(stem, lastIndex);
+
+					if (lastIndex != -1) {
+						count++;
+						lastIndex += stem.length();
+					}
+				}
+			}
+			ArrayList<Entity> groupedEntities = grouped.get(count);
+			if (groupedEntities != null) {
+				groupedEntities.add(Entities.get(e));
+			} else {
+				groupedEntities = new ArrayList<Entity>();
+				groupedEntities.add(Entities.get(e));
+			}
+
+			grouped.put(count, groupedEntities);
+			if(!keys.contains(count))
+				keys.add(count);
+		}
+
+		ArrayList<Entity> temp;
+		
+		Iterator it = grouped.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry) it.next();
+			temp = (ArrayList<Entity>) pair.getValue();
+			Collections.sort(temp, comparator);
+		}
+		
+		Collections.sort(keys);
+		Entities.clear();
+		for(int i=(keys.size()-1); i>-1; i--){
+			temp = grouped.get(keys.get(i));
+			for(int k=0; k<temp.size(); k++)
+				Entities.add(temp.get(k));
+		}
 	}
 
 	private static Comparator<Entity> comparator = new Comparator<Entity>() {
