@@ -25,6 +25,10 @@ public class ResultModel {
 	public ResultModel() {
 		Entities = new ArrayList<Entity>();
 	}
+	
+	public ResultModel(ArrayList<Entity> in) {
+		Entities = in;
+	}
 
 	public void addEntities(ArrayList in) {
 		for (int i = 0; i < in.size(); i++) {

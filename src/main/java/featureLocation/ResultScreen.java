@@ -33,7 +33,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 
-import Model.SearchModel;
+import Model.*;
 import javax.swing.SwingConstants;
 
 public class ResultScreen extends JFrame implements ActionListener {
@@ -41,13 +41,17 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private JLabel name;
 	private JButton selectBtn = new JButton("Select");
 	private JButton returnBtn = new JButton("Return");
+	private JButton saveBtn = new JButton("Save Current");
 	private JButton undo = new JButton("Undo");
+	private JButton removeBtn = new JButton("Remove");
+	private JButton resetBtn = new JButton("Reset");
+	private JButton newTab = new JButton("New Tab");
 	private ArrayList<Entity> Entities;
 	private DefaultListModel<String> model;
 	private JList<String> list;
 	private JScrollPane card1;
 	private JPanel panel = new JPanel(new GridBagLayout());
-	private JPanel card2 = new JPanel();;
+	private JPanel card2 = new JPanel();
 	private CardLayout cardLayout;
 	private String[] values;
 	private JLabel xLabel = new JLabel("X");
@@ -57,10 +61,14 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private ArrayList<Entity> relatedEntities = new ArrayList<Entity>();
 	private ArrayList<Entity> stack = new ArrayList<Entity>();
 	private GridBagConstraints constraints = new GridBagConstraints();
+	private SavedFeature savedFeature;
+	private int searchOrFeature;
+	private Entity currentEntity;
 	
-	public ResultScreen(ArrayList in){
+	public ResultScreen(ArrayList in, SavedFeature sF, int searchOrFeature){
 
-
+		this.searchOrFeature = searchOrFeature;
+		savedFeature = sF;
 		Entities = in;
 
 		this.setUndecorated(true);
@@ -79,10 +87,14 @@ public class ResultScreen extends JFrame implements ActionListener {
 
         selectBtn.addActionListener(this);
         returnBtn.addActionListener(this);
+        saveBtn.addActionListener(this);
         undo.addActionListener(this);
+        removeBtn.addActionListener(this);
+        resetBtn.addActionListener(this);
+        newTab.addActionListener(this);
         showcard1();
     }
-	
+
 	private void showcard1(){
 		
 		stack.clear();
@@ -99,6 +111,13 @@ public class ResultScreen extends JFrame implements ActionListener {
 		internal.add(listScrollPane);
 		buttons.add(selectBtn);
 		buttons.add(returnBtn);
+		buttons.add(newTab);
+		
+		if(searchOrFeature == 1){
+			buttons.add(removeBtn);
+			buttons.add(resetBtn);
+		}			
+		
 		internal.add(buttons);
 		internal.setLayout(new FlowLayout(FlowLayout.LEFT));
 		internal.setPreferredSize(new Dimension(350,250));
@@ -139,6 +158,8 @@ public class ResultScreen extends JFrame implements ActionListener {
 	}
 	
 	private void showcard2(Entity e){
+		
+		currentEntity = e;
 		
 		if(stack.size() >= 1)
 		{
@@ -226,6 +247,8 @@ public class ResultScreen extends JFrame implements ActionListener {
 		buttons.add(returnBtn);
 		buttons.add(selectBtn);
 		buttons.add(undo);
+		buttons.add(saveBtn);
+		buttons.add(newTab);
 		//card2.add(buttons);
 		card2.setLayout(new BoxLayout(card2,BoxLayout.Y_AXIS));
 		card2.setBorder(BorderFactory.createLineBorder(Color.blue));
@@ -269,6 +292,13 @@ public class ResultScreen extends JFrame implements ActionListener {
 		 
         card2.setVisible(true);
 	}
+	
+	private void refresh(){
+		ResultModel rm = new ResultModel(savedFeature.getFeature());
+		ResultScreen rs = new ResultScreen(rm.getEntities(), savedFeature, 1);
+		rs.setVisible(true);
+		dispose();
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -291,8 +321,13 @@ public class ResultScreen extends JFrame implements ActionListener {
 		if (e.getActionCommand().equals("Return"))
         {
 			if(card2.isVisible()){
-				card2.setVisible(false);
-				showcard1();
+				if(searchOrFeature == 1){
+					refresh();
+				}
+				else{
+					card2.setVisible(false);
+					showcard1();
+				}
 			}
 			else if(card1.isVisible()){
 				FeatureLocation.setUpSearch();
@@ -308,10 +343,47 @@ public class ResultScreen extends JFrame implements ActionListener {
 				showcard2(stack.get(stack.size()-1));
 			}
 			else{
-				card2.setVisible(false);
-				showcard1();
+				if(searchOrFeature == 1){
+					refresh();
+				}
+				else{
+					card2.setVisible(false);
+					showcard1();
+				}
 			}
 		}
-
+		
+		if(e.getActionCommand().equals("Save Current"))
+		{
+			savedFeature.addFeature(currentEntity);
+		}
+			
+		if(e.getActionCommand().equals("Remove"))
+		{
+			int index = list.getSelectedIndex();
+			Entity ent = Entities.get(index);
+			savedFeature.removeEntity(ent);
+			refresh();
+		}
+		
+		if(e.getActionCommand().equals("Reset"))
+		{
+			savedFeature.resetFeature();
+			FeatureLocation.setUpSearch();
+			dispose();
+		}
+		
+		if(e.getActionCommand().equals("New Tab"))
+		{
+			if(card1.isVisible()){
+				int index = list.getSelectedIndex();
+				Entity ent = Entities.get(index);
+				NewTab nt = new NewTab(ent);
+			}
+			else{
+				int selected = cb.getSelectedIndex();
+				NewTab nt = new NewTab(relatedEntities.get(selected));
+			}
+		}
 	}
 }
