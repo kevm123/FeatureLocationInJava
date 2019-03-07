@@ -22,6 +22,7 @@ public class FeatureLocation {
 	private static String searchString;
 	private static FileScreen fs = new FileScreen();
 	private static SavedFeature savedFeature;
+	private static Matrix matrix;
 	//private static String startTime;
 
 	public static void main(String[] args) throws IOException {
@@ -39,9 +40,11 @@ public class FeatureLocation {
 		Date date = new Date();
 		startTime = dateFormat.format(date);
 		*/
+		matrix = new Matrix();
 		savedFeature = new SavedFeature();
-		boolean okParse = parser.parse(input);
+		boolean okParse = parser.parse(input, matrix);
 		if (okParse) {
+			matrix.create();
 			bagOfWords.create();
 			setUpSearch();
 		}

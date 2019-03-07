@@ -55,6 +55,8 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSol
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
+import Model.Matrix;
+
 public class ParseFiles {
 	private static String PATH ;
 	// final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year
@@ -70,9 +72,11 @@ public class ParseFiles {
 	private static ArrayList<String> relationships= new ArrayList<String>();
 	private int count;
 	private static Entity file;
+	private static Matrix matrix;
 
-	public boolean parse(String in) throws IOException {
+	public boolean parse(String in, Matrix matrix) throws IOException {
 
+		this.matrix = matrix;
 		CompilationUnit cu = null;
 		PATH = in + "\\src";
 		File baseFile = new File(PATH);
@@ -248,6 +252,7 @@ public class ParseFiles {
 			e.setChildren(children);
 
 			Entities.add(e);
+			matrix.addMethod(e);
 			
 			MethodDeclaration m = (MethodDeclaration) node;
 			m.accept(new VoidVisitorAdapter<Void>() {
