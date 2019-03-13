@@ -6,7 +6,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.*; 
-import javax.swing.*; 
+import javax.swing.*;
+
+import Model.ResultModel;
+import Model.SavedFeature;
 import Model.SearchModel;
 
 public class SearchScreen extends JFrame implements ActionListener {
@@ -15,11 +18,15 @@ public class SearchScreen extends JFrame implements ActionListener {
 	 	private JTextField inputText = new JTextField(20);
 	    private JLabel searchLabel = new JLabel("Search");
 	    private JLabel xLabel = new JLabel("X");
-	    private JButton searchBtn = new JButton("Search"); 
+	    private JButton searchBtn = new JButton("Search");
+	    private JButton featureBtn = new JButton("Saved Feature");
+	    private SavedFeature savedFeature;
 	    private SearchModel sm;
 
 
-	    public SearchScreen(SearchModel in){
+	    public SearchScreen(SearchModel in, SavedFeature sF){
+	    	
+	    	savedFeature = sF;
 
 	    	sm = in;
 	    	this.setUndecorated(true);
@@ -55,11 +62,18 @@ public class SearchScreen extends JFrame implements ActionListener {
 	        constraints.anchor = GridBagConstraints.CENTER;
 	        panel.add(searchBtn, constraints);
 	        
+	        constraints.gridx = 1;
+	        constraints.gridy = 4;
+	        constraints.gridwidth = 2;
+	        constraints.anchor = GridBagConstraints.CENTER;
+	        panel.add(featureBtn, constraints);
+	        
 	        add(panel);
 
 	        pack();
 	        setLocationRelativeTo(null);
 	        searchBtn.addActionListener(this);
+	        featureBtn.addActionListener(this);
 	        xLabel.addMouseListener(new MouseAdapter(){
 	        	public void mouseClicked(MouseEvent e){
 	        		System.exit(0);
@@ -68,17 +82,32 @@ public class SearchScreen extends JFrame implements ActionListener {
 	    }
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			
-	                input = inputText.getText().toString();
-	                
-	                if(!input.isEmpty() && !input.equals(null)){
-	                	sm.setSearch(input);
-	                	continueSearch();
-	                }                
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		if (e.getActionCommand().equals("Search")) {
 
+			input = inputText.getText().toString();
+
+			if (!input.isEmpty() && !input.equals(null)) {
+				sm.setSearch(input);
+				continueSearch();
+			}
 		}
+
+		if (e.getActionCommand().equals("Saved Feature"))
+
+		{
+			if (savedFeature.getFeature().size() > 0) {
+				ResultModel rm = new ResultModel(savedFeature.getFeature());
+				ResultScreen rs = new ResultScreen(rm.getEntities(), savedFeature, 1);
+				rs.setVisible(true);
+			}
+			else{
+				JOptionPane.showMessageDialog(new JFrame(),"No Entities added to Saved Feature yet!","Warning",JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
 		
 		private void continueSearch()
 		{

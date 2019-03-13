@@ -33,7 +33,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 
-import Model.SearchModel;
+import Model.*;
 import javax.swing.SwingConstants;
 
 public class ResultScreen extends JFrame implements ActionListener {
@@ -41,13 +41,17 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private JLabel name;
 	private JButton selectBtn = new JButton("Select");
 	private JButton returnBtn = new JButton("Return");
+	private JButton saveBtn = new JButton("Save Current");
 	private JButton undo = new JButton("Undo");
+	private JButton removeBtn = new JButton("Remove");
+	private JButton resetBtn = new JButton("Reset");
+	private JButton newTab = new JButton("New Tab");
 	private ArrayList<Entity> Entities;
 	private DefaultListModel<String> model;
 	private JList<String> list;
 	private JScrollPane card1;
 	private JPanel panel = new JPanel(new GridBagLayout());
-	private JPanel card2 = new JPanel();;
+	private JPanel card2 = new JPanel();
 	private CardLayout cardLayout;
 	private String[] values;
 	private JLabel xLabel = new JLabel("X");
@@ -57,112 +61,124 @@ public class ResultScreen extends JFrame implements ActionListener {
 	private ArrayList<Entity> relatedEntities = new ArrayList<Entity>();
 	private ArrayList<Entity> stack = new ArrayList<Entity>();
 	private GridBagConstraints constraints = new GridBagConstraints();
-	
-	public ResultScreen(ArrayList in){
+	private SavedFeature savedFeature;
+	private int searchOrFeature;
+	private Entity currentEntity;
 
+	public ResultScreen(ArrayList in, SavedFeature sF, int searchOrFeature) {
 
+		this.searchOrFeature = searchOrFeature;
+		savedFeature = sF;
 		Entities = in;
 
 		this.setUndecorated(true);
 		model = new DefaultListModel<>();
-		xLabel.setForeground(new Color(241,57,83));
-        xLabel.setBounds(619,0,84,27);
-        Font font = new Font("Courier", Font.BOLD,18);
-        xLabel.setFont(font);
+		xLabel.setForeground(new Color(241, 57, 83));
+		xLabel.setBounds(619, 0, 84, 27);
+		Font font = new Font("Courier", Font.BOLD, 18);
+		xLabel.setFont(font);
 
 		for (int i = 0; i < Entities.size(); i++) {
-			model.addElement(Entities.get(i).getName()+"("+Entities.get(i).getWeight()+")");
+			model.addElement(Entities.get(i).getName() + "(" + Entities.get(i).getWeight() + ")");
 		}
 		list = new JList<String>(model);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 
-        selectBtn.addActionListener(this);
-        returnBtn.addActionListener(this);
-        undo.addActionListener(this);
-        showcard1();
-    }
-	
-	private void showcard1(){
-		
+		selectBtn.addActionListener(this);
+		returnBtn.addActionListener(this);
+		saveBtn.addActionListener(this);
+		undo.addActionListener(this);
+		removeBtn.addActionListener(this);
+		resetBtn.addActionListener(this);
+		newTab.addActionListener(this);
+		showcard1();
+	}
+
+	private void showcard1() {
+
 		stack.clear();
 		panel.removeAll();
 		panel.revalidate();
 		panel.repaint();
 		JScrollPane listScrollPane = new JScrollPane();
 		listScrollPane.setViewportView(list);
-		listScrollPane.setPreferredSize(new Dimension(250,247));
-		
+		listScrollPane.setPreferredSize(new Dimension(250, 247));
+
 		JPanel internal = new JPanel();
 		buttons.removeAll();
 		buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
 		internal.add(listScrollPane);
 		buttons.add(selectBtn);
 		buttons.add(returnBtn);
+		buttons.add(newTab);
+
+		if (searchOrFeature == 1) {
+			buttons.add(removeBtn);
+			buttons.add(resetBtn);
+		}
+
 		internal.add(buttons);
 		internal.setLayout(new FlowLayout(FlowLayout.LEFT));
-		internal.setPreferredSize(new Dimension(350,250));
-		
+		internal.setPreferredSize(new Dimension(350, 250));
 
-        card1 = new JScrollPane();
-        card1.setViewportView(internal);
+		card1 = new JScrollPane();
+		card1.setViewportView(internal);
 
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.insets = new Insets(2,2,2,2);
-        panel.add(card1, constraints);
-        panel.setPreferredSize(new Dimension(400,300));
-       
-        this.getContentPane().add(panel);
-       
-        constraints.anchor = GridBagConstraints.NORTH;
-        constraints.gridx = 1;
-        constraints.gridy = 0;
-        xLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        panel.add(xLabel, constraints);
-        
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        title.setHorizontalAlignment(SwingConstants.LEFT);
-        title.setText("Weighted Results");
-        panel.add(title, constraints);
-        
-        pack();
-         setLocationRelativeTo(null);
-        card1.setVisible(true);
-        card2.setVisible(false);
-        xLabel.addMouseListener(new MouseAdapter(){
-        	public void mouseClicked(MouseEvent e){
-        		System.exit(0);
-        	}
-        });
+		constraints.gridx = 0;
+		constraints.gridy = 1;
+		constraints.insets = new Insets(2, 2, 2, 2);
+		panel.add(card1, constraints);
+		panel.setPreferredSize(new Dimension(400, 300));
+
+		this.getContentPane().add(panel);
+
+		constraints.anchor = GridBagConstraints.NORTH;
+		constraints.gridx = 1;
+		constraints.gridy = 0;
+		xLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel.add(xLabel, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		title.setHorizontalAlignment(SwingConstants.LEFT);
+		title.setText("Weighted Results");
+		panel.add(title, constraints);
+
+		pack();
+		setLocationRelativeTo(null);
+		card1.setVisible(true);
+		card2.setVisible(false);
+		xLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				System.exit(0);
+			}
+		});
 	}
-	
-	private void showcard2(Entity e){
-		
-		if(stack.size() >= 1)
-		{
-			if(!(stack.get(stack.size()-1).equals(e)))
-			{
+
+	private void showcard2(Entity e) {
+
+		currentEntity = e;
+
+		if (stack.size() >= 1) {
+			if (!(stack.get(stack.size() - 1).equals(e))) {
 				stack.add(e);
 			}
-		}
-		else
+		} else
 			stack.add(e);
-		
+
 		relatedEntities = e.getRelations();
+		panel.removeAll();
 		card2.removeAll();
+		panel.revalidate();	
 		card2.revalidate();
 		card2.repaint();
-		panel.removeAll();
-		panel.revalidate();
 		panel.repaint();
 		values = e.print2();
-		Font font = new Font("Courier", Font.BOLD,12);
-		Color red = new Color(241,57,83);
-		String[]childrenArray = values[3].split("/");
-		String[]incomingArray = values[4].split("/");
-		String[]outgoingArray = values[5].split("/");
+		Font font = new Font("Courier", Font.BOLD, 12);
+		String[] childrenArray = values[3].split("/");
+		String[] incomingArray = values[4].split("/");
+		String[] outgoingArray = values[5].split("/");
 		JLabel NAME = new JLabel("NAME:");
 		JLabel TYPE = new JLabel("TYPE:");
 		JLabel PARENT = new JLabel("PARENT:");
@@ -175,21 +191,21 @@ public class ResultScreen extends JFrame implements ActionListener {
 		JLabel children = new JLabel(values[3]);
 		JLabel incoming = new JLabel(values[4]);
 		JLabel outgoing = new JLabel(values[5]);
-		
+
 		ArrayList<String> optionalList = new ArrayList<String>();
-		
+
 		NAME.setFont(font);
-		NAME.setForeground(red);
+		NAME.setForeground(Color.DARK_GRAY);
 		TYPE.setFont(font);
-		TYPE.setForeground(red);
+		TYPE.setForeground(Color.DARK_GRAY);
 		PARENT.setFont(font);
-		PARENT.setForeground(red);
+		PARENT.setForeground(Color.RED);
 		CHILDREN.setFont(font);
-		CHILDREN.setForeground(red);
+		CHILDREN.setForeground(Color.BLUE);
 		INCOMING.setFont(font);
-		INCOMING.setForeground(red);
+		INCOMING.setForeground(Color.MAGENTA);
 		OUTGOING.setFont(font);
-		OUTGOING.setForeground(red);
+		OUTGOING.setForeground(Color.GREEN);
 		card2.add(NAME);
 		card2.add(name);
 		card2.add(TYPE);
@@ -197,121 +213,171 @@ public class ResultScreen extends JFrame implements ActionListener {
 		card2.add(PARENT);
 		card2.add(parent);
 		card2.add(CHILDREN);
-		
-		
+
 		optionalList.add(values[2]);
-		for(int i=0; i<childrenArray.length; i++){
+		for (int i = 0; i < childrenArray.length; i++) {
 			card2.add(new JLabel(childrenArray[i]));
 		}
 		card2.add(INCOMING);
-		for(int i=0; i<incomingArray.length; i++){
+		for (int i = 0; i < incomingArray.length; i++) {
 			card2.add(new JLabel(incomingArray[i]));
 		}
 		card2.add(OUTGOING);
-		for(int i=0; i<outgoingArray.length; i++){
+		for (int i = 0; i < outgoingArray.length; i++) {
 			card2.add(new JLabel(outgoingArray[i]));
 		}
-		
+
+		Color[] colours = new Color[relatedEntities.size()];
 		String[] choices = new String[relatedEntities.size()];
-		for(int i=0; i<relatedEntities.size(); i++){
-			if(relatedEntities.get(i) != null){
+		for (int i = 0; i < relatedEntities.size(); i++) {
+			if (relatedEntities.get(i) != null) {
 				choices[i] = relatedEntities.get(i).getName();
+				if(e.isA(0,relatedEntities.get(i)))
+					colours[i] = Color.RED;
+				else if(e.isA(1,relatedEntities.get(i)))
+					colours[i] = Color.BLUE;
+				else if(e.isA(2,relatedEntities.get(i)))
+					colours[i] = Color.MAGENTA;
+				else if(e.isA(3,relatedEntities.get(i)))
+					colours[i] = Color.GREEN;
+				else
+					colours[i] = Color.BLACK;
+				
 			}
 		}
+
+		cb = new JComboBox<String>(choices);
 		
-	    cb = new JComboBox<String>(choices);
+		ComboBoxRenderer renderer = new ComboBoxRenderer(cb);
+
+        renderer.setColors(colours);
+        renderer.setStrings(choices);
+
+        cb.setRenderer(renderer);
 		
-	    buttons.removeAll();
-	    buttons.setLayout(new FlowLayout());
+		buttons.removeAll();
+		buttons.setLayout(new FlowLayout());
 		buttons.add(returnBtn);
 		buttons.add(selectBtn);
 		buttons.add(undo);
-		//card2.add(buttons);
-		card2.setLayout(new BoxLayout(card2,BoxLayout.Y_AXIS));
+		buttons.add(saveBtn);
+		buttons.add(newTab);
+		
+		card2.setLayout(new BoxLayout(card2, BoxLayout.Y_AXIS));
 		card2.setBorder(BorderFactory.createLineBorder(Color.blue));
-		JScrollPane scroll = new JScrollPane(card2,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scroll.setPreferredSize(new Dimension(300,300));
-		panel.setPreferredSize(new Dimension(400,400));
+		JScrollPane scroll = new JScrollPane(card2, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setPreferredSize(new Dimension(250, 250));
+		panel.setPreferredSize(new Dimension(400, 400));
+		
+		
 		constraints.gridx = 0;
-        constraints.gridy = 1;
+		constraints.gridy = 1;
 		panel.add(scroll, constraints);
 		constraints.gridx = 0;
-        constraints.gridy = 2;
+		constraints.gridy = 2;
 		panel.add(cb, constraints);
 		constraints.gridx = 0;
-        constraints.gridy = 3;
+		constraints.gridy = 3;
 		panel.add(buttons, constraints);
-		
-		 constraints.anchor = GridBagConstraints.NORTH;
-	     constraints.gridx = 1;
-	     constraints.gridy = 0;
-	     xLabel.setHorizontalAlignment(SwingConstants.RIGHT);	        
-	     panel.add(xLabel, constraints);
-	     
-	     constraints.gridx = 0;
-	     constraints.gridy = 0;
-	     title.setHorizontalAlignment(SwingConstants.LEFT);
-	     title.setText("Entity Information");
-	     panel.add(title, constraints);
-		
-        pack();
-		 setLocationRelativeTo(null);
-		 
-		 
-		 Iterator it = ParseFiles.EntitySet.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry pair = (Map.Entry) it.next();
-				if(((Entity)(pair.getValue())).getName().equals(e.getName())){
-					System.out.println(pair.getKey());
-				}
 
-			}
-		 
-        card2.setVisible(true);
+		constraints.anchor = GridBagConstraints.NORTH;
+		constraints.gridx = 1;
+		constraints.gridy = 0;
+		xLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel.add(xLabel, constraints);
+
+		constraints.gridx = 0;
+		constraints.gridy = 0;
+		title.setHorizontalAlignment(SwingConstants.LEFT);
+		title.setText("Entity Information");
+		panel.add(title, constraints);
+		
+
+		pack();
+		setLocationRelativeTo(null);
+
+		card2.setVisible(true);
+	}
+
+	private void refresh() {
+		ResultModel rm = new ResultModel(savedFeature.getFeature());
+		ResultScreen rs = new ResultScreen(rm.getEntities(), savedFeature, 1);
+		rs.setVisible(true);
+		dispose();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
-		if (e.getActionCommand().equals("Select"))
-        {
-			if(card2.isVisible()){
+
+		if (e.getActionCommand().equals("Select")) {
+			if (card2.isVisible()) {
 				int selected = cb.getSelectedIndex();
 				showcard2(relatedEntities.get(selected));
-			}
-			else if(card1.isVisible()){
+			} else if (card1.isVisible()) {
 				int index = list.getSelectedIndex();
 				card1.setVisible(false);
 				Entity ent = Entities.get(index);
 				showcard2(ent);
 			}
-        }        
-		
-		if (e.getActionCommand().equals("Return"))
-        {
-			if(card2.isVisible()){
-				card2.setVisible(false);
-				showcard1();
-			}
-			else if(card1.isVisible()){
+		}
+
+		if (e.getActionCommand().equals("Return")) {
+			if (card2.isVisible()) {
+				if (searchOrFeature == 1) {
+					refresh();
+				} else {
+					card2.setVisible(false);
+					showcard1();
+				}
+			} else if (card1.isVisible()) {
 				FeatureLocation.setUpSearch();
 				dispose();
 			}
-        }     
-		
-		if(e.getActionCommand().equals("Undo"))
-		{
-			if(stack.size()>1){
+		}
+
+		if (e.getActionCommand().equals("Undo")) {
+			if (stack.size() > 1) {
 				int length = stack.size();
-				stack.remove(length-1);
-				showcard2(stack.get(stack.size()-1));
-			}
-			else{
-				card2.setVisible(false);
-				showcard1();
+				stack.remove(length - 1);
+				showcard2(stack.get(stack.size() - 1));
+			} else {
+				if (searchOrFeature == 1) {
+					refresh();
+				} else {
+					card2.setVisible(false);
+					showcard1();
+				}
 			}
 		}
 
+		if (e.getActionCommand().equals("Save Current")) {
+			savedFeature.addFeature(currentEntity);
+		}
+
+		if (e.getActionCommand().equals("Remove")) {
+			int index = list.getSelectedIndex();
+			Entity ent = Entities.get(index);
+			savedFeature.removeEntity(ent);
+			refresh();
+		}
+
+		if (e.getActionCommand().equals("Reset")) {
+			savedFeature.resetFeature();
+			FeatureLocation.setUpSearch();
+			dispose();
+		}
+
+		if (e.getActionCommand().equals("New Tab")) {
+			if (card1.isVisible()) {
+				int index = list.getSelectedIndex();
+				Entity ent = Entities.get(index);
+				NewTab nt = new NewTab(ent);
+			} else {
+				int selected = cb.getSelectedIndex();
+				NewTab nt = new NewTab(relatedEntities.get(selected));
+			}
+		}
 	}
 }

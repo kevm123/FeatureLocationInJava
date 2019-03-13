@@ -1,7 +1,6 @@
 package featureLocation;
 
-import Model.ResultModel;
-import Model.SearchModel;
+import Model.*;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -19,9 +18,11 @@ public class FeatureLocation {
 	private static ParseFiles parser = new ParseFiles();
 	private static SearchModel sm = new SearchModel();
 	private static BagOfWords bagOfWords = new BagOfWords();
-	private static ResultModel rm = new ResultModel();
+	private static ResultModel rm;
 	private static String searchString;
 	private static FileScreen fs = new FileScreen();
+	private static SavedFeature savedFeature;
+	private static Matrix matrix;
 	//private static String startTime;
 
 	public static void main(String[] args) throws IOException {
@@ -39,8 +40,11 @@ public class FeatureLocation {
 		Date date = new Date();
 		startTime = dateFormat.format(date);
 		*/
-		boolean okParse = parser.parse(input);
+		matrix = new Matrix();
+		savedFeature = new SavedFeature();
+		boolean okParse = parser.parse(input, matrix);
 		if (okParse) {
+			matrix.create();
 			bagOfWords.create();
 			setUpSearch();
 		}
@@ -56,14 +60,15 @@ public class FeatureLocation {
 		System.out.println(startTime+"\n"+dateFormat.format(date));
 		JOptionPane.showMessageDialog(new JFrame(),startTime+"\n"+dateFormat.format(date),"Warning",JOptionPane.ERROR_MESSAGE);
 		*/
-		SearchScreen ss = new SearchScreen(sm);
+		rm = new ResultModel();
+		SearchScreen ss = new SearchScreen(sm, savedFeature);
 		ss.setVisible(true);
 	}
 
 	public static void searchWord() {
 		searchString = sm.getSearch();
 		bagOfWords.search(searchString, rm);
-		ResultScreen rs = new ResultScreen(rm.getEntities());
+		ResultScreen rs = new ResultScreen(rm.getEntities(), savedFeature, 0);
 		rs.setVisible(true);
 	}
 

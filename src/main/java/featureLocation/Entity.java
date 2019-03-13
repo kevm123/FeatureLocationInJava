@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
@@ -136,6 +137,52 @@ public class Entity {
 
 	}
 	
+	public boolean isA(int type, Entity e){
+		Iterator it;
+		switch (type) {
+		  case 0:
+			  if(getParent() == e){
+				  return true;
+			  }
+				  
+			  break;
+		  case 1:
+			  if (children != null) {
+					it = children.iterator();
+					while (it.hasNext()) {
+						if((Entity)it.next() == e)
+						{
+							return true;
+						}
+					}
+				}
+			  break;
+		  case 2:
+			  if (incoming.size() > 0) {
+					it = incoming.iterator();
+					while (it.hasNext()) {
+						if(it.next() == e){
+							return true;
+						}
+					}
+				}
+			  break;
+		  case 3:
+			  if (outgoing.size() > 0) {
+					it = outgoing.iterator();
+					while (it.hasNext()) {
+						if(it.next() == e){
+							return true;
+						}
+					}
+				}
+		    break;
+		  default:
+			  return false;
+		}
+		return false;
+	}
+	
 	public ArrayList<Entity> getRelations(){
 		ArrayList<Entity> out = new ArrayList<Entity>();
 		if(parent != null)
@@ -211,7 +258,7 @@ public class Entity {
         		break;
         case 3:  out[1] = "Method";
         		break;
-        case 4:  out[1] = "Constant";
+        case 4:  out[1] = "Constructor";
         		break;
         case 5:  out[1] = "Variable";
         		break;
