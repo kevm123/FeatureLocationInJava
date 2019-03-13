@@ -18,7 +18,7 @@ public class FeatureLocation {
 	private static ParseFiles parser = new ParseFiles();
 	private static SearchModel sm = new SearchModel();
 	private static BagOfWords bagOfWords = new BagOfWords();
-	private static ResultModel rm = new ResultModel();
+	private static ResultModel rm;
 	private static String searchString;
 	private static FileScreen fs = new FileScreen();
 	private static SavedFeature savedFeature;
@@ -60,6 +60,7 @@ public class FeatureLocation {
 		System.out.println(startTime+"\n"+dateFormat.format(date));
 		JOptionPane.showMessageDialog(new JFrame(),startTime+"\n"+dateFormat.format(date),"Warning",JOptionPane.ERROR_MESSAGE);
 		*/
+		rm = new ResultModel();
 		SearchScreen ss = new SearchScreen(sm, savedFeature);
 		ss.setVisible(true);
 	}

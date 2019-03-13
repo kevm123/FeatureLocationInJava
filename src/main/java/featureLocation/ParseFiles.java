@@ -157,8 +157,6 @@ public class ParseFiles {
 				}
 
 			}
-
-			System.out.println(count);
 			System.out.println(EntitySet.size());
 			//printTest();
 			

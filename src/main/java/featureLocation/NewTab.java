@@ -63,17 +63,17 @@ public class NewTab extends JFrame {
 		ArrayList<String> optionalList = new ArrayList<String>();
 
 		NAME.setFont(font);
-		NAME.setForeground(red);
+		NAME.setForeground(Color.DARK_GRAY);
 		TYPE.setFont(font);
-		TYPE.setForeground(red);
+		TYPE.setForeground(Color.DARK_GRAY);
 		PARENT.setFont(font);
-		PARENT.setForeground(red);
+		PARENT.setForeground(Color.RED);
 		CHILDREN.setFont(font);
-		CHILDREN.setForeground(red);
+		CHILDREN.setForeground(Color.BLUE);
 		INCOMING.setFont(font);
-		INCOMING.setForeground(red);
+		INCOMING.setForeground(Color.MAGENTA);
 		OUTGOING.setFont(font);
-		OUTGOING.setForeground(red);
+		OUTGOING.setForeground(Color.GREEN);
 		displayPanel.add(NAME);
 		displayPanel.add(name);
 		displayPanel.add(TYPE);
