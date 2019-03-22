@@ -25,5 +25,7 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/libstemmer_java"/>
 	<classpathentry kind="lib" path="C:/workarea/weblaf-complete-1.29.jar"/>
+	<classpathentry kind="lib" path="C:/workarea/GDdouble.jar"/>
+	<classpathentry kind="var" path="SWT_LIB"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

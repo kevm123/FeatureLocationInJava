@@ -27,6 +27,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -79,19 +80,26 @@ public class ResultScreen extends JFrame implements ActionListener {
 		xLabel.setFont(font);
 
 		for (int i = 0; i < Entities.size(); i++) {
-			model.addElement(Entities.get(i).getName() + "(" + Entities.get(i).getWeight() + ")");
+			model.addElement(Entities.get(i).getName());
 		}
 		list = new JList<String>(model);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 
 		selectBtn.addActionListener(this);
+		selectBtn.setToolTipText("Show the selected entity in the current window");
 		returnBtn.addActionListener(this);
+		returnBtn.setToolTipText("Return to original entity search result screen");
 		saveBtn.addActionListener(this);
+		saveBtn.setToolTipText("Save the current entity to your feature");
 		undo.addActionListener(this);
+		undo.setToolTipText("Return to the previous entity information");
 		removeBtn.addActionListener(this);
+		removeBtn.setToolTipText("Remove selected entity from your feature");
 		resetBtn.addActionListener(this);
+		resetBtn.setToolTipText("Clear all saved entities from your feature");
 		newTab.addActionListener(this);
+		newTab.setToolTipText("Open selected entity information in a new window");
 		showcard1();
 	}
 
@@ -151,7 +159,11 @@ public class ResultScreen extends JFrame implements ActionListener {
 		card2.setVisible(false);
 		xLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				int reply = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Close?",  JOptionPane.YES_NO_OPTION);
+        		if (reply == JOptionPane.YES_OPTION)
+        		{
+        		   System.exit(0);
+        		}
 			}
 		});
 	}
@@ -177,14 +189,14 @@ public class ResultScreen extends JFrame implements ActionListener {
 		values = e.print2();
 		Font font = new Font("Courier", Font.BOLD, 12);
 		String[] childrenArray = values[3].split("/");
-		String[] incomingArray = values[4].split("/");
-		String[] outgoingArray = values[5].split("/");
+		String[] incomingArray = values[5].split("/");
+		String[] outgoingArray = values[4].split("/");
 		JLabel NAME = new JLabel("NAME:");
 		JLabel TYPE = new JLabel("TYPE:");
 		JLabel PARENT = new JLabel("PARENT:");
 		JLabel CHILDREN = new JLabel("CHILDREN:");
-		JLabel INCOMING = new JLabel("INCOMING METHOD CALLS:");
-		JLabel OUTGOING = new JLabel("OUTGOING METHOD CALLS:");
+		JLabel INCOMING = new JLabel("INCOMING CALLS:");
+		JLabel OUTGOING = new JLabel("OUTGOING CALLS:");
 		JLabel name = new JLabel(values[0]);
 		JLabel type = new JLabel(values[1]);
 		JLabel parent = new JLabel(values[2]);
@@ -257,11 +269,11 @@ public class ResultScreen extends JFrame implements ActionListener {
 		
 		buttons.removeAll();
 		buttons.setLayout(new FlowLayout());
-		buttons.add(returnBtn);
 		buttons.add(selectBtn);
-		buttons.add(undo);
 		buttons.add(saveBtn);
 		buttons.add(newTab);
+		buttons.add(returnBtn);
+		buttons.add(undo);
 		
 		card2.setLayout(new BoxLayout(card2, BoxLayout.Y_AXIS));
 		card2.setBorder(BorderFactory.createLineBorder(Color.blue));

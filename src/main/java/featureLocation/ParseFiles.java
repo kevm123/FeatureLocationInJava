@@ -16,6 +16,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
@@ -57,13 +61,8 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 
 import Model.Matrix;
 
-public class ParseFiles {
+public class ParseFiles{
 	private static String PATH ;
-	// final File folder = new File("C:/Users/kev00_000/Desktop/College/4th Year
-	// Semester 1/FYP/workspace-jhotdraw ! /JHotDraw7/src/main/java");
-	// final File folder = new
-	// File(""../JPExamples/src/org/javaparser/samples"");
-	// final File folder = new File("C:/workarea/rhino1.7.9/src");
 
 	static HashMap<String, Entity> EntitySet = new HashMap<String, Entity>();
 	static ArrayList<Entity> Entities = new ArrayList<Entity>();
@@ -74,8 +73,12 @@ public class ParseFiles {
 	private static Entity file;
 	private static Matrix matrix;
 
-	public boolean parse(String in, Matrix matrix) throws IOException {
-
+	public boolean parse(String in, Matrix matrix) throws IOException{
+		
+		EntitySet.clear();
+		Entities.clear();
+		VariableUsage.clear();
+		relationships.clear();
 		this.matrix = matrix;
 		CompilationUnit cu = null;
 		PATH = in + "\\src";
@@ -250,7 +253,8 @@ public class ParseFiles {
 			e.setChildren(children);
 
 			Entities.add(e);
-			matrix.addMethod(e);
+			int index = Entities.indexOf(e);
+			matrix.addMethod(Entities.get(index));
 			
 			MethodDeclaration m = (MethodDeclaration) node;
 			m.accept(new VoidVisitorAdapter<Void>() {
@@ -340,51 +344,63 @@ public class ParseFiles {
 
 		for (Node child : node.getChildNodes()) {
 			if (child instanceof MethodDeclaration) {
-				findVarUsage(child, child.getParentNode());
+				findVarUsage(child, ((NodeWithSimpleName<ClassOrInterfaceDeclaration>) node).getNameAsString()+"."
+						+((NodeWithSimpleName<ClassOrInterfaceDeclaration>) child).getNameAsString());
+			}
+			else if (child instanceof FieldDeclaration) {
+				findVarUsage(child, ((NodeWithSimpleName<ClassOrInterfaceDeclaration>) node).getNameAsString());
 			}
 		}
 	}
 
-	static void findVarUsage(Node node, Optional<Node> optional) {
-
-		Optional<Node> Parent = optional;
+	static void findVarUsage(Node node, String callerString) {
 		for (Node child : node.getChildNodes()) {
 			if (child instanceof FieldAccessExpr) {
-				getVariableUsage(child, Parent);
+				getVariableUsage(child, callerString);
 			} else {
-				findVarUsage(child, Parent);
+				findVarUsage(child, callerString);
 			}
 
 		}
 	}
 
-	private static void getVariableUsage(Node child, Optional<Node> parent) {
+	private static void getVariableUsage(Node child, String callerString) {
 		VariableUsage v = new VariableUsage();
-		Node p = parent.get();
 		
+		String caller = root+callerString;		
 		String callee = root+(child.toString()).substring(0, (child.toString()).indexOf('.'));
-		String caller = root+((NodeWithSimpleName<ClassOrInterfaceDeclaration>) p).getNameAsString();
 		String variable = root+child.toString();
-		
 		
 		if (EntitySet.get(callee) != null) {
 			if (EntitySet.get(caller) != null) {
 				if (EntitySet.get(variable) != null) {
 
-					Entity a = EntitySet.get(callee);
-					v.setCallee(a);
+					Entity calleeE = EntitySet.get(callee);
+					v.setCallee(calleeE);
 					
 					
-					Entity b = EntitySet.get(caller);
-					v.setCaller(b);
+					Entity callerE = EntitySet.get(caller);
+					v.setCaller(callerE);
 
 					
-					Entity c = EntitySet.get(variable);
-					v.setVariable(c);
+					Entity variableE = EntitySet.get(variable);
+					v.setVariable(variableE);
 
+					callerE.addOutgoing(calleeE);
+					callerE.addOutgoing(variableE);
+					calleeE.addIncoming(callerE);
+					variableE.addIncoming(callerE);	
+					
+					callerE.setHasOutgoing(true);
+					calleeE.setHasIncoming(true);
+					variableE.setHasIncoming(true);
+					
+					EntitySet.put(caller, callerE);
+					EntitySet.put(callee, calleeE);
+					EntitySet.put(variable, variableE);
 					
 					VariableUsage.add(v);
-					//System.out.println("Variable Usage!");
+					System.out.println(callerE.getName()+"--"+calleeE.getName()+"--"+variableE.getName());
 				}
 				
 			}

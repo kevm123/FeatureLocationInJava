@@ -22,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -80,7 +81,11 @@ public class FileScreen extends JFrame implements ActionListener {
         searchBtn.addActionListener(this);
         xLabel.addMouseListener(new MouseAdapter(){
         	public void mouseClicked(MouseEvent e){
-        		System.exit(0);
+        		int reply = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Close?",  JOptionPane.YES_NO_OPTION);
+        		if (reply == JOptionPane.YES_OPTION)
+        		{
+        		   System.exit(0);
+        		}
         	}
         });
         
@@ -89,6 +94,7 @@ public class FileScreen extends JFrame implements ActionListener {
         		openFile();
         	}
         });
+        qLabel.setToolTipText("Open user manual");
     }
 
 	@Override

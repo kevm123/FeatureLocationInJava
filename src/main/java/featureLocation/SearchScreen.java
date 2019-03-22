@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.*; 
 import javax.swing.*;
 
+import Model.Matrix;
 import Model.ResultModel;
 import Model.SavedFeature;
 import Model.SearchModel;
@@ -19,14 +20,21 @@ public class SearchScreen extends JFrame implements ActionListener {
 	    private JLabel searchLabel = new JLabel("Search");
 	    private JLabel xLabel = new JLabel("X");
 	    private JButton searchBtn = new JButton("Search");
-	    private JButton featureBtn = new JButton("Saved Feature");
+	    private JButton featureBtn = new JButton("Feature");
+	    private JButton graphBtn = new JButton("Graphical View");
+	    private JButton returnBtn = new JButton("Return");
 	    private SavedFeature savedFeature;
 	    private SearchModel sm;
+	    private Matrix matrix;
 
 
-	    public SearchScreen(SearchModel in, SavedFeature sF){
+	    public SearchScreen(SearchModel in, SavedFeature sF, Matrix matrix){
 	    	
+	    	this.matrix = matrix;
 	    	savedFeature = sF;
+	    	featureBtn.setToolTipText("Entites saved to saved feature");
+	    	graphBtn.setToolTipText("View a graphical representation of method relationships");
+	    	returnBtn.setToolTipText("Load in a new Java File");
 
 	    	sm = in;
 	    	this.setUndecorated(true);
@@ -68,15 +76,33 @@ public class SearchScreen extends JFrame implements ActionListener {
 	        constraints.anchor = GridBagConstraints.CENTER;
 	        panel.add(featureBtn, constraints);
 	        
+	        constraints.gridx = 1;
+	        constraints.gridy = 5;
+	        constraints.gridwidth = 2;
+	        constraints.anchor = GridBagConstraints.CENTER;
+	        panel.add(graphBtn, constraints);
+	        
+	        constraints.gridx = 1;
+	        constraints.gridy = 6;
+	        constraints.gridwidth = 2;
+	        constraints.anchor = GridBagConstraints.CENTER;
+	        panel.add(returnBtn, constraints);
+	        
 	        add(panel);
 
 	        pack();
 	        setLocationRelativeTo(null);
 	        searchBtn.addActionListener(this);
 	        featureBtn.addActionListener(this);
+	        graphBtn.addActionListener(this);
+	        returnBtn.addActionListener(this);
 	        xLabel.addMouseListener(new MouseAdapter(){
 	        	public void mouseClicked(MouseEvent e){
-	        		System.exit(0);
+	        		int reply = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "Close?",  JOptionPane.YES_NO_OPTION);
+	        		if (reply == JOptionPane.YES_OPTION)
+	        		{
+	        		   System.exit(0);
+	        		}
 	        	}
 	        });
 	    }
@@ -94,7 +120,7 @@ public class SearchScreen extends JFrame implements ActionListener {
 			}
 		}
 
-		if (e.getActionCommand().equals("Saved Feature"))
+		if (e.getActionCommand().equals("Feature"))
 
 		{
 			if (savedFeature.getFeature().size() > 0) {
@@ -105,6 +131,19 @@ public class SearchScreen extends JFrame implements ActionListener {
 			else{
 				JOptionPane.showMessageDialog(new JFrame(),"No Entities added to Saved Feature yet!","Warning",JOptionPane.ERROR_MESSAGE);
 			}
+		}
+		
+		if (e.getActionCommand().equals("Graphical View"))
+
+		{
+			matrix.create();
+			illustration.drawings(matrix.getMatrix(), matrix.getMethods());
+		}
+		
+		if (e.getActionCommand().equals("Return"))
+		{
+			dispose();
+			FeatureLocation.redo();
 		}
 	}
 

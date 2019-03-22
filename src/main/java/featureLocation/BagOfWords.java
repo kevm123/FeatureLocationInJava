@@ -30,6 +30,10 @@ public class BagOfWords {
 	static Set<String> stopWords = new HashSet<String>(Arrays.asList(reservedWords));
 
 	public static void create() throws IOException {
+		parser = new ParseFiles();
+		SearchSet = new HashMap<String, ArrayList<Entity>>();
+		Entities = new ArrayList<Entity>();
+		
 		String input;
 		String stemmed;
 

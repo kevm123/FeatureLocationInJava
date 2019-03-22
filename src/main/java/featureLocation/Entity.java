@@ -214,7 +214,7 @@ public class Entity {
 		System.out.println("Type:\t" + type);
 		if (type != 7)
 			System.out.println("Parent:\t" + parent.getName());
-		if (type == 0 || type == 3 || type == 6 || type == 7) {
+		if (type == 0 || type == 1 || type == 3 || type == 6 || type == 7) {
 
 			if (children != null) {
 				Iterator<Entity> it = children.iterator();
@@ -223,7 +223,7 @@ public class Entity {
 					System.out.println("\t" + it.next().getName());
 				}
 
-				if (type == 3 && hasOutgoing) {
+				if (hasOutgoing) {
 					Iterator<Entity> it2 = outgoing.iterator();
 					System.out.print("Outgoing:");
 					while (it2.hasNext()) {
@@ -231,7 +231,7 @@ public class Entity {
 					}
 				}
 
-				if (type == 3 && hasIncoming) {
+				if (hasIncoming) {
 					Iterator<Entity> it2 = incoming.iterator();
 					System.out.print("Incoming:");
 					while (it2.hasNext()) {
@@ -272,18 +272,20 @@ public class Entity {
 		
 		if (type != 7)
 			out[2] = (parent.getName());
-		if (type == 0 || type == 3 || type == 6 || type == 7) {
+		if (type == 0 || type == 1 || type == 3 || type == 6 || type == 7) {
 
-			Iterator<Entity> it = children.iterator();
 			String test;
 			test = ("");
-			while (it.hasNext()) {
-				test += (it.next().getName() + "/");
+			if (children != null) {
+				Iterator<Entity> it = children.iterator();
+				while (it.hasNext()) {
+					test += (it.next().getName() + "/");
+				}
 			}
 			out[3] = test;
 			test = new String();
 			test = ("");
-			if (type == 3 && hasOutgoing) {
+			if (outgoing.size() > 0) {
 				Iterator<Entity> it2 = outgoing.iterator();
 
 				while (it2.hasNext()) {
@@ -293,7 +295,7 @@ public class Entity {
 			out[4] = test;
 			test = new String();
 			test = ("");
-			if (type == 3 && hasIncoming) {
+			if (incoming.size() > 0) {
 				Iterator<Entity> it2 = incoming.iterator();
 
 				while (it2.hasNext()) {

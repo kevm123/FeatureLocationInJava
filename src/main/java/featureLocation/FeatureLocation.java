@@ -1,15 +1,13 @@
 package featureLocation;
 
 import Model.*;
-import java.awt.EventQueue;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import com.alee.laf.WebLookAndFeel;
 
@@ -23,7 +21,7 @@ public class FeatureLocation {
 	private static FileScreen fs = new FileScreen();
 	private static SavedFeature savedFeature;
 	private static Matrix matrix;
-	//private static String startTime;
+	private static LoadingScreen ls = new LoadingScreen();
 
 	public static void main(String[] args) throws IOException {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -31,37 +29,65 @@ public class FeatureLocation {
 				WebLookAndFeel.install();
 			}
 		});
-
+		fs.setVisible(true);
+	}
+	
+	public static void redo(){
 		fs.setVisible(true);
 	}
 	
 	public static void startParse(String input) throws IOException {
-		/*DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		Date date = new Date();
-		startTime = dateFormat.format(date);
-		*/
 		matrix = new Matrix();
 		savedFeature = new SavedFeature();
-		boolean okParse = parser.parse(input, matrix);
-		if (okParse) {
-			matrix.create();
-			bagOfWords.create();
-			setUpSearch();
-		}
-		else{
-			fs.setVisible(true);
-			JOptionPane.showMessageDialog(new JFrame(),"Invalid File Location","Warning",JOptionPane.ERROR_MESSAGE);
-		}
+		parser = new ParseFiles();
+		SearchModel sm = new SearchModel();
+		BagOfWords bagOfWords = new BagOfWords();
+		
+		SwingWorker backThread = new SwingWorker()  
+        { 
+  
+            @Override
+            protected Object doInBackground() throws Exception  
+            { 
+            	boolean okParse = parser.parse(input, matrix);
+				return okParse;
+            } 
+  
+            @Override
+            protected void done()  
+            { 
+            	boolean okParse;
+				try {
+					okParse = (boolean) get();
+					if (okParse) {
+						ls.setVisible(false);
+	        			//matrix.create();
+	        			//illustration.drawings(matrix.getMatrix(), matrix.getMethods());
+	        			bagOfWords.create();
+	        			setUpSearch();
+	        		}
+	        		else{
+	        			fs.setVisible(true);
+	        			JOptionPane.showMessageDialog(new JFrame(),"Invalid File Location","Warning",JOptionPane.ERROR_MESSAGE);
+	        		}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (ExecutionException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+            	
+            } 
+        }; 
+        
+		ls.setVisible(true);
+		backThread.execute();  
 	}
 
 	public static void setUpSearch() {
-		/*DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-		Date date = new Date();
-		System.out.println(startTime+"\n"+dateFormat.format(date));
-		JOptionPane.showMessageDialog(new JFrame(),startTime+"\n"+dateFormat.format(date),"Warning",JOptionPane.ERROR_MESSAGE);
-		*/
 		rm = new ResultModel();
-		SearchScreen ss = new SearchScreen(sm, savedFeature);
+		SearchScreen ss = new SearchScreen(sm, savedFeature, matrix);
 		ss.setVisible(true);
 	}
 
