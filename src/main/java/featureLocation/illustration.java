@@ -1,22 +1,16 @@
 package featureLocation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.events.TypedEvent;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import drawingAlgorithms.CTD;
 import drawingAlgorithms.FruchtermanReingold;
-import drawingAlgorithms.KamadaKawai;
-import drawingAlgorithms.ShortestPath;
 
 public class illustration {
 
@@ -24,25 +18,6 @@ public class illustration {
 
 	public static void drawings(double[][] pos, ArrayList<Entity> methods) {
 		
-		double[][] adj = { 
-				{ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0 },
-				{ 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0 }, 
-				{ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1 },
-				{ 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1 },
-				{ 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1 },
-				{ 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0 }, 
-				{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0 },
-				{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0 }, 
-				{ 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },
-				{ 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1 }, 
-				{ 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0 },
-				{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0 }, 
-				{ 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0 },
-				{ 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0 }, 
-				{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0 },
-				{ 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 } 
-				};
-
 		if (pos.length > 0) {
 			int size = pos[0].length;
 			for (int i = 0; i < size; i++) {
@@ -107,7 +82,7 @@ public class illustration {
 						//System.out.println(FRpos[0][0][i] * coef + " " + FRpos[0][1][i] * coef);
 
 						e.gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));
-						e.gc.drawOval((int) ((FRpos[0][0][i] * coef)-5), (int) ((FRpos[0][1][i] * coef)-5), 20, 20);
+						e.gc.drawOval((int) ((FRpos[0][0][i] * coef)-5), (int) ((FRpos[0][1][i] * coef)-5), 22, 22);
 						e.gc.setForeground(display.getSystemColor(SWT.COLOR_RED));
 						e.gc.drawText(String.valueOf(count), (int) (FRpos[0][0][i] * coef), (int) (FRpos[0][1][i] * coef));
 						e.gc.setForeground(display.getSystemColor(SWT.COLOR_BLACK));

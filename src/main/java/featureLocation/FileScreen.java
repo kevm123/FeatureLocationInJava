@@ -137,20 +137,7 @@ public class FileScreen extends JFrame implements ActionListener {
 		            dTop.open(tempOutput.toFile());
 		        }
 		    }
-
-		    /*
-			ClassLoader classLoader = getClass().getClassLoader();
-			File file = new File(classLoader.getResource("InformationSheet.pdf").getFile());
-			if (file.exists()) {
-
-				if (Desktop.isDesktopSupported()) {
-					Desktop.getDesktop().open(file);
-				} else {
-					System.out.println("Awt Desktop is not supported!");
-				}
-				
-
-			} */else {
+		    else {
 				System.out.println("File is not exists!");
 			}
 

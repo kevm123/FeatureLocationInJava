@@ -89,14 +89,14 @@ public class BagOfWords {
 			Entities = SearchSet.get(list[i]);
 			
 
-			System.out.println("----" + list[i] + "----");
+			//System.out.println("----" + list[i] + "----");
 			if (Entities != null) {
 				rm.addEntities(Entities);
 				for (int k = 0; k < Entities.size(); k++) {
-					System.out.println(Entities.get(k).getName());
+					//System.out.println(Entities.get(k).getName());
 				}
 			} else {
-				System.out.println("NO Data");
+				//System.out.println("NO Data");
 			}
 		}
 		rm.sortEntities(list);

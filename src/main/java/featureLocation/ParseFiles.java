@@ -108,10 +108,7 @@ public class ParseFiles{
 				for (int k = 0; k < split.length - 1; k++) {
 					root += (split[k] + ".");
 				}
-
-				// YamlPrinter printer = new YamlPrinter(true);
-				// System.out.println(printer.output(cu));
-
+				
 				NodeList<TypeDeclaration<?>> ty = cu.getTypes();
 				for (TypeDeclaration<?> typeDeclaration : ty) {
 					Node node = (Node) typeDeclaration;
@@ -161,7 +158,6 @@ public class ParseFiles{
 
 			}
 			System.out.println(EntitySet.size());
-			//printTest();
 			
 			if(EntitySet.size()>0){
 				return true;
